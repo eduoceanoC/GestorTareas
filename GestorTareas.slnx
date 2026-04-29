@@ -1,2 +1,4 @@
 <Solution>
+ <Project Path="GestorTareas\GestorTareas.csproj" />
+ <Project Path="TestProject1\Tests.csproj" />
 </Solution>
