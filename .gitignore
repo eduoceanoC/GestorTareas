@@ -1,0 +1,21 @@
+# Ignore Visual Studio / .NET build outputs and IDE files
+.vs/
+bin/
+obj/
+TestResults/
+*.pdb
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.ncb
+*.opensdf
+*.sdf
+*.cache
+Thumbs.db
+desktop.ini
+*.log
+*.nupkg
+*.nuspec
+.nuget/
+.idea/
