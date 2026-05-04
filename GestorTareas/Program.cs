@@ -1,6 +1,30 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using GestorTareas.Data;
 using GestorTareas.Services;
+using GestorTareas.UI;
+
+
+if (args.Contains("console"))
+{
+    Console.Title = "Gestor de Tareas (Modo consola)";
+
+    string consoleConnectionString =
+        "Server=(localdb)\\MSSQLLocalDB;Database=GestorTareas;Trusted_Connection=True;TrustServerCertificate=True;";
+
+    var options = new DbContextOptionsBuilder<AppDbContext>()
+        .UseSqlServer(consoleConnectionString)
+        .Options;
+
+    var context = new AppDbContext(options);
+
+    ITareaRepository repo = new EfTareaRepository(context);
+    TareaService servicio = new TareaService(repo);
+
+    var ui = new ConsoleUI(servicio);
+    ui.Ejecutar();
+
+    return;
+}
 
 var builder = WebApplication.CreateBuilder(args);
 
