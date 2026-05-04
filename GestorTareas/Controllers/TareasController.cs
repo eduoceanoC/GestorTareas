@@ -13,13 +13,7 @@ namespace GestorTareas.Api.Controllers
         public TareasController(TareaService servicio)
         {
             _servicio = servicio;
-        }
-
-        [HttpGet]
-        public IActionResult ObtenerTodas()
-        {
-            return Ok(_servicio.ObtenerTodas());
-        }
+        }        
 
         [HttpGet("{id}")]
         public IActionResult ObtenerPorId(Guid id)
@@ -30,6 +24,15 @@ namespace GestorTareas.Api.Controllers
                 return NotFound();
 
             return Ok(tarea);
+        }
+
+        [HttpGet]
+        public IActionResult ObtenerTodas(
+            [FromQuery] int pagina = 1,
+            [FromQuery] int porPagina = 10)
+            {
+                var resultado = _servicio.ObtenerPaginado(pagina, porPagina);
+                return Ok(resultado);
         }
 
         [HttpPost]

@@ -72,6 +72,15 @@ namespace GestorTareas.Data
             }
         }
 
+        public List<Tarea> ObtenerPaginado(int pagina, int porPagina)
+        {
+            return _context.Tareas
+                .OrderBy(t => t.FechaCreacion)
+                .Skip((pagina - 1) * porPagina)
+                .Take(porPagina)
+                .ToList();
+        }
+
         public void IncrementarEliminadas() { }
     }
 }

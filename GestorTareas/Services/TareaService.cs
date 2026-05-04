@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GestorTareas.Domain;
 using GestorTareas.Data;
+using GestorTareas.Services.Dto;
 
 namespace GestorTareas.Services
 {
@@ -27,6 +28,28 @@ namespace GestorTareas.Services
         {
             var siguiente = recurrente.GenerarSiguiente();
             _repository.Agregar(siguiente);
+        }
+
+        public PaginadoResponseDto<Tarea> ObtenerPaginado(int pagina, int porPagina)
+        {
+            var todas = _repository.ObtenerTodas();
+            var totalRegistros = todas.Count;
+
+            var datos = todas
+                .Skip((pagina - 1) * porPagina)
+                .Take(porPagina)
+                .ToList();
+
+            var totalPaginas = (int)Math.Ceiling((double)totalRegistros / porPagina);
+
+            return new PaginadoResponseDto<Tarea>
+            {
+                Datos = datos,
+                TotalRegistros = totalRegistros,
+                TotalPaginas = totalPaginas,
+                HayPaginaAnterior = pagina > 1,
+                HayPaginaSiguiente = pagina < totalPaginas
+            };
         }
 
         // Estadísticas
