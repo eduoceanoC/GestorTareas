@@ -1,4 +1,5 @@
-﻿using GestorTareas.Domain;
+﻿using System;
+using GestorTareas.Domain;
 
 public class CrearTareaDto
 {
@@ -6,9 +7,7 @@ public class CrearTareaDto
     public string? Descripcion { get; set; }
     public DateTime FechaLimite { get; set; }
     public PrioridadTarea Prioridad { get; set; }
-
     public int Tipo { get; set; }
-
     public int? IntervaloEnDias { get; set; }
     public string? Responsable { get; set; }
 }

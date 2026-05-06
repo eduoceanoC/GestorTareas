@@ -6,12 +6,24 @@ namespace GestorTareas.Data
     public class AppDbContext : DbContext
     {
         public DbSet<Tarea> Tareas { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Estadistica> Estadisticas { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Usuario>(entity =>
+            {
+                entity.ToTable("Usuarios");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Nombre).HasMaxLength(100).IsRequired();
+                entity.Property(e => e.Email).HasMaxLength(200).IsRequired();
+                entity.Property(e => e.Password).HasMaxLength(200).IsRequired();
+                entity.Property(e => e.Rol).HasMaxLength(20).IsRequired();
+                entity.HasIndex(e => e.Email).IsUnique();
+            });
+
             modelBuilder.Entity<Tarea>(entity =>
             {
                 entity.ToTable("Tareas");
@@ -28,13 +40,18 @@ namespace GestorTareas.Data
                     .HasConversion<byte>()
                     .UsePropertyAccessMode(PropertyAccessMode.Field);
                 entity.Property(e => e.MotivoCancelacion).HasMaxLength(500);
+                entity.Property(e => e.UsuarioId).IsRequired();
                 entity.Property<int>("TipoTarea").HasColumnType("tinyint");
 
-                // Discriminador
                 entity.HasDiscriminator<int>("TipoTarea")
                     .HasValue<TareaSimple>(1)
                     .HasValue<TareaRecurrente>(2)
                     .HasValue<TareaUrgente>(3);
+
+                entity.HasOne(t => t.Usuario)
+                      .WithMany(u => u.Tareas)
+                      .HasForeignKey(t => t.UsuarioId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<TareaRecurrente>()
@@ -42,7 +59,6 @@ namespace GestorTareas.Data
 
             modelBuilder.Entity<TareaUrgente>()
                 .Property(e => e.Responsable).HasMaxLength(100);
-
 
             modelBuilder.Entity<Estadistica>(entity =>
             {

@@ -1,10 +1,13 @@
 ﻿using System;
+using GestorTareas.Data;
 
 namespace GestorTareas.Domain
 {
     public abstract class Tarea
     {
         public Guid Id { get; set; }
+        public Guid UsuarioId { get; set; }
+        public Usuario Usuario { get; set; }
         public string Titulo { get; set; }
         public string? Descripcion { get; set; }
         public DateTime FechaCreacion { get; set; }

@@ -16,23 +16,40 @@ namespace GestorTareas.Services
             _repository = repository;
         }
 
-        public void AgregarTarea(Tarea tarea) => _repository.Agregar(tarea);
+        public void AgregarTarea(Tarea tarea, Guid usuarioId)
+        {
+            tarea.UsuarioId = usuarioId;
+            _repository.Agregar(tarea);
+        }
 
         public List<Tarea> ObtenerTodas() => _repository.ObtenerTodas();
 
-        public Tarea ObtenerPorId(Guid id) => _repository.ObtenerPorId(id);
+        public List<Tarea> ObtenerPorUsuario(Guid usuarioId) => _repository.ObtenerPorUsuario(usuarioId);
+
+        public Tarea? ObtenerPorId(Guid id) => _repository.ObtenerPorId(id);
+
+        public void GuardarCambios(Tarea tarea) => _repository.Actualizar(tarea);
 
         public void EliminarTarea(Guid id) => _repository.Eliminar(id);
 
         public void GenerarSiguienteRecurrente(TareaRecurrente recurrente)
         {
             var siguiente = recurrente.GenerarSiguiente();
+            siguiente.UsuarioId = recurrente.UsuarioId;
             _repository.Agregar(siguiente);
         }
 
-        public PaginadoResponseDto<Tarea> ObtenerPaginado(int pagina, int porPagina)
+        public bool PuedeAdministrarTarea(Tarea tarea, Guid usuarioId, bool esAdmin)
         {
-            var todas = _repository.ObtenerTodas();
+            return esAdmin || tarea.UsuarioId == usuarioId;
+        }
+
+        public PaginadoResponseDto<Tarea> ObtenerPaginado(int pagina, int porPagina, Guid? usuarioId = null, bool esAdmin = false)
+        {
+            var todas = esAdmin || usuarioId == null
+                ? _repository.ObtenerTodas()
+                : _repository.ObtenerPorUsuario(usuarioId.Value);
+
             var totalRegistros = todas.Count;
 
             var datos = todas
@@ -40,7 +57,7 @@ namespace GestorTareas.Services
                 .Take(porPagina)
                 .ToList();
 
-            var totalPaginas = (int)Math.Ceiling((double)totalRegistros / porPagina);
+            var totalPaginas = totalRegistros == 0 ? 0 : (int)Math.Ceiling((double)totalRegistros / porPagina);
 
             return new PaginadoResponseDto<Tarea>
             {
@@ -52,7 +69,6 @@ namespace GestorTareas.Services
             };
         }
 
-        // Estadísticas
         public int TotalTareas => _repository.ObtenerTodas().Count;
         public int TareasPendientes => _repository.BuscarPorEstado(EstadoTarea.Pendiente).Count;
         public int TareasEnProgreso => _repository.BuscarPorEstado(EstadoTarea.EnProgreso).Count;

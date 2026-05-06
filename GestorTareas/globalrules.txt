@@ -1,0 +1,30 @@
+# GLOBAL RULES - CLINE AGENT
+
+## 🧠 PRINCIPIOS GENERALES
+- Prioriza código claro, mantenible y coherente con arquitectura existente.
+- No cambies arquitectura del proyecto sin pedir confirmación.
+- No introduzcas nuevas tecnologías innecesarias.
+- Mantén separación por capas: Domain / Data / Services / API, etc
+
+
+## ⚙️ ESTILO DE CÓDIGO
+- Usa nombres en español si el proyecto ya los usa.
+- Evita mezclar inglés/español en nombres de métodos/clases.
+- Mantén consistencia con el estilo existente.
+- No refactorices masivamente sin motivo.
+
+## 🧱 BASE DE DATOS
+- No escribir SQL manual salvo casos justificados.
+- Respeta relaciones y constraints existentes.
+
+## 🚨 REGLAS IMPORTANTES
+- No romper compatibilidad con endpoints ya existentes.
+- No eliminar funcionalidades sin confirmación.
+- Si hay duda, preguntar antes de cambiar lógica crítica.
+
+## 🧪 TESTING Y DEBUG
+- Validar siempre impacto en API endpoints.
+
+## 📌 OBJETIVO
+- Proyecto educativo + escalable
+- Prioridad: entendibilidad sobre optimización extrema
