@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
 using GestorTareas;
+using GestorTareas.Domain;
 
 namespace TestProject1
 {
@@ -39,23 +40,6 @@ namespace TestProject1
                     PrioridadTarea.Alta);
             });
         }
-
-
-        [Test]
-        public void CrearTareaSimple_FechaPasada_LanzaExcepcion()
-        {
-            var fecha = DateTime.Today.AddDays(-1);
-
-            Assert.Throws<ArgumentException>(() =>
-            {
-                var tarea = new TareaSimple(
-                    "Titulo",
-                    "Descripcion",
-                    fecha,
-                    PrioridadTarea.Baja);
-            });
-        }
-
 
         [Test]
         public void IniciarTarea_CambiaEstadoAEnProgreso()

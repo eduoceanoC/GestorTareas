@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using GestorTareas.Data;
 using GestorTareas.Domain;
+using GestorTareas.Infrastructure.Middleware;
 using GestorTareas.Services;
 using GestorTareas.Services.Auth;
 using GestorTareas.UI;
@@ -31,7 +32,7 @@ if (args.Contains("console"))
     var consoleJwtSettings = config.GetSection("Jwt").Get<JwtSettings>() ?? new JwtSettings();
     var authService = new AuthService(context, Microsoft.Extensions.Options.Options.Create(consoleJwtSettings));
     ITareaRepository repo = new EfTareaRepository(context);
-    TareaService servicio = new TareaService(repo);
+    TareaService servicio = new TareaService(repo, context);
 
     var ui = new ConsoleUI(servicio, authService);
     ui.Ejecutar();
@@ -83,6 +84,8 @@ using (var scope = app.Services.CreateScope())
     dbContext.Database.EnsureCreated();
     SeedUsuarios(dbContext);
 }
+
+app.UseErrorHandling();
 
 if (app.Environment.IsDevelopment())
 {
@@ -147,7 +150,6 @@ static void SeedUsuarios(AppDbContext dbContext)
 
         dbContext.SaveChanges();
 
-        // Crear tareas de ejemplo para pedro
         dbContext.Tareas.AddRange(
             new TareaSimple("Comprar pan", "Ir a la panadería antes de las 10", DateTime.Now.AddDays(1), PrioridadTarea.Media)
             {
@@ -169,7 +171,6 @@ static void SeedUsuarios(AppDbContext dbContext)
             }
         );
 
-        // Crear tareas de ejemplo para maria
         dbContext.Tareas.AddRange(
             new TareaSimple("Estudiar inglés", "Lección 5 del curso", DateTime.Now.AddDays(2), PrioridadTarea.Alta)
             {

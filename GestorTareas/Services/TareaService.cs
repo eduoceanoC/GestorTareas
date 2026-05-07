@@ -4,22 +4,50 @@ using System.Linq;
 using GestorTareas.Domain;
 using GestorTareas.Data;
 using GestorTareas.Services.Dto;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace GestorTareas.Services
 {
     public class TareaService
     {
         private readonly ITareaRepository _repository;
+        private readonly AppDbContext _context;
+        private readonly ILogger<TareaService> _logger;
 
-        public TareaService(ITareaRepository repository)
+        public TareaService(ITareaRepository repository) : this(repository, null!, null!)
+        {
+        }
+
+        public TareaService(ITareaRepository repository, AppDbContext context) : this(repository, context, null!)
+        {
+        }
+
+        public TareaService(ITareaRepository repository, AppDbContext context, ILogger<TareaService> logger)
         {
             _repository = repository;
+            _context = context;
+            _logger = logger;
+        }
+
+        public List<Usuario> ObtenerTodosLosUsuarios()
+        {
+            if (_context == null) return new List<Usuario>();
+            return _context.Usuarios.AsNoTracking().ToList();
         }
 
         public void AgregarTarea(Tarea tarea, Guid usuarioId)
         {
+            if (string.IsNullOrWhiteSpace(tarea.Titulo))
+            {
+                _logger?.LogWarning("Intento de crear tarea con título vacío por usuario {UsuarioId}", usuarioId);
+                throw new ArgumentException("El título no puede estar vacío");
+            }
+
             tarea.UsuarioId = usuarioId;
             _repository.Agregar(tarea);
+            _logger?.LogInformation("Tarea '{Titulo}' (ID: {TareaId}) creada por usuario {UsuarioId}",
+                tarea.Titulo, tarea.Id, usuarioId);
         }
 
         public List<Tarea> ObtenerTodas() => _repository.ObtenerTodas();

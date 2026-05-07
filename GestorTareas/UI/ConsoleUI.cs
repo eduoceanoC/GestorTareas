@@ -4,6 +4,7 @@ using GestorTareas.Data;
 using GestorTareas.Domain;
 using GestorTareas.Services;
 using GestorTareas.Services.Auth;
+using Microsoft.EntityFrameworkCore;
 
 namespace GestorTareas.UI
 {
@@ -24,9 +25,7 @@ namespace GestorTareas.UI
             while (true)
             {
                 if (!MenuInicio())
-                {
                     return;
-                }
 
                 bool salir = false;
                 while (!salir)
@@ -38,25 +37,23 @@ namespace GestorTareas.UI
                     {
                         case "1": AgregarTarea(); break;
                         case "2": ListarMisTareas(); break;
-                        case "3": EditarTareaUsuarioActual(); break;
+                        case "3": EditarTareaConCambioEstado(); break;
                         case "4": CancelarMiTarea(); break;
                         case "5": MostrarEstadisticas(); break;
                         case "6" when EsAdmin(): VerTodasLasTareas(); break;
-                        case "7" when EsAdmin(): AdministrarTareasDeUsuario(); break;
+                        case "7" when EsAdmin(): GestionarUsuario(); break;
+                        case "8" when EsAdmin(): MostrarEstadisticasGlobales(); break;
+                        case "9" when EsAdmin():
+                        case "6" when !EsAdmin():
+                            _usuarioActual = null;
+                            salir = true;
+                            break;
                         case "0":
                             Console.WriteLine("¡Hasta luego!");
                             return;
                         default:
-                            if (opcion == (EsAdmin() ? "9" : "7"))
-                            {
-                                _usuarioActual = null;
-                                salir = true;
-                            }
-                            else
-                            {
-                                Console.WriteLine("Opción no válida. Presione Enter para continuar...");
-                                Console.ReadLine();
-                            }
+                            Console.WriteLine("Opción no válida. Presione Enter para continuar...");
+                            Console.ReadLine();
                             break;
                     }
                 }
@@ -159,7 +156,7 @@ namespace GestorTareas.UI
             Console.WriteLine($"=== GESTOR DE TAREAS | Usuario: {_usuarioActual!.Nombre} ({_usuarioActual.Rol}) ===");
             Console.WriteLine("1. Agregar nueva tarea");
             Console.WriteLine("2. Listar mis tareas");
-            Console.WriteLine("3. Editar una de mis tareas");
+            Console.WriteLine("3. Editar / cambiar estado de una tarea");
             Console.WriteLine("4. Cancelar una de mis tareas");
             Console.WriteLine("5. Ver mis estadísticas");
             if (EsAdmin())
@@ -197,7 +194,7 @@ namespace GestorTareas.UI
 
             if (!int.TryParse(prioridadInput, out int prioridadIdx) || prioridadIdx < 1 || prioridadIdx > 3)
             {
-                Console.WriteLine("Prioridad no válida. Operación cancelada. Presione Enter para continuar...");
+                Console.WriteLine("Prioridad no válida. Presione Enter...");
                 Console.ReadLine();
                 return;
             }
@@ -210,40 +207,28 @@ namespace GestorTareas.UI
                     case "1":
                         Console.Write("Fecha límite (dd/MM/yyyy): ");
                         if (!DateTime.TryParseExact(Console.ReadLine(), "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime fechaLimite))
-                        {
-                            Console.WriteLine("Fecha inválida. Operación cancelada.");
-                            break;
-                        }
+                        { Console.WriteLine("Fecha inválida."); break; }
                         _service.AgregarTarea(new TareaSimple(titulo, descripcion ?? string.Empty, fechaLimite, prioridad), _usuarioActual!.Id);
-                        Console.WriteLine("\n✓ Tarea simple agregada exitosamente!");
+                        Console.WriteLine("\n✓ Tarea simple agregada!");
                         break;
                     case "2":
                         Console.Write("Fecha límite (dd/MM/yyyy): ");
                         if (!DateTime.TryParseExact(Console.ReadLine(), "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out fechaLimite))
-                        {
-                            Console.WriteLine("Fecha inválida. Operación cancelada.");
-                            break;
-                        }
+                        { Console.WriteLine("Fecha inválida."); break; }
                         Console.Write("Intervalo en días: ");
                         if (!int.TryParse(Console.ReadLine(), out int intervalo) || intervalo <= 0)
-                        {
-                            Console.WriteLine("Intervalo inválido. Operación cancelada.");
-                            break;
-                        }
+                        { Console.WriteLine("Intervalo inválido."); break; }
                         _service.AgregarTarea(new TareaRecurrente(titulo, descripcion ?? string.Empty, fechaLimite, prioridad, intervalo), _usuarioActual!.Id);
-                        Console.WriteLine("\n✓ Tarea recurrente agregada exitosamente!");
+                        Console.WriteLine("\n✓ Tarea recurrente agregada!");
                         break;
                     case "3":
                         Console.Write("Fecha límite (dd/MM/yyyy HH:mm): ");
                         if (!DateTime.TryParseExact(Console.ReadLine(), "dd/MM/yyyy HH:mm", null, System.Globalization.DateTimeStyles.None, out fechaLimite))
-                        {
-                            Console.WriteLine("Fecha inválida. Operación cancelada.");
-                            break;
-                        }
+                        { Console.WriteLine("Fecha inválida."); break; }
                         Console.Write("Responsable: ");
                         string responsable = Console.ReadLine() ?? string.Empty;
                         _service.AgregarTarea(new TareaUrgente(titulo, descripcion ?? string.Empty, fechaLimite, prioridad, responsable), _usuarioActual!.Id);
-                        Console.WriteLine("\n✓ Tarea urgente agregada exitosamente!");
+                        Console.WriteLine("\n✓ Tarea urgente agregada!");
                         break;
                     default:
                         Console.WriteLine("Tipo no válido");
@@ -252,7 +237,7 @@ namespace GestorTareas.UI
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"\n✗ Error al crear tarea: {ex.Message}");
+                Console.WriteLine($"\n✗ Error: {ex.Message}");
             }
 
             Console.WriteLine("\nPresione Enter para continuar...");
@@ -263,20 +248,19 @@ namespace GestorTareas.UI
         {
             LimpiarPantalla();
             Console.WriteLine("=== MIS TAREAS ===\n");
-
             var tareas = _service.ObtenerPorUsuario(_usuarioActual!.Id);
             MostrarListado(tareas, conDetallesAdmin: false);
             Console.WriteLine("\nPresione Enter para continuar...");
             Console.ReadLine();
         }
 
-        private void EditarTareaUsuarioActual()
+        private void EditarTareaConCambioEstado()
         {
             var tareas = _service.ObtenerPorUsuario(_usuarioActual!.Id);
             if (!ValidarTareasExistentes(tareas)) return;
 
-            ListarTareasConIndices(tareas, "=== EDITAR MIS TAREAS ===");
-            Console.Write("\nSeleccione el número de tarea a editar: ");
+            ListarTareasConIndices(tareas, "=== EDITAR / CAMBIAR ESTADO ===");
+            Console.Write("\nSeleccione el número de tarea: ");
             if (!int.TryParse(Console.ReadLine(), out int indice) || indice < 1 || indice > tareas.Count)
             {
                 Console.WriteLine("Selección no válida");
@@ -284,7 +268,20 @@ namespace GestorTareas.UI
                 return;
             }
 
-            EditarDatosTarea(tareas[indice - 1]);
+            var tarea = tareas[indice - 1];
+            LimpiarPantalla();
+            Console.WriteLine($"=== GESTIONAR TAREA: {tarea.Titulo} ===\n");
+            Console.WriteLine("1. Editar datos (título, descripción, prioridad...)");
+            Console.WriteLine("2. Cambiar estado");
+            Console.WriteLine("0. Volver");
+            Console.Write("\nSeleccione: ");
+
+            string opc = Console.ReadLine() ?? string.Empty;
+            switch (opc)
+            {
+                case "1": EditarDatosTarea(tarea); break;
+                case "2": CambiarEstadoInteractivo(tarea); break;
+            }
         }
 
         private void CancelarMiTarea()
@@ -327,21 +324,43 @@ namespace GestorTareas.UI
         {
             LimpiarPantalla();
             Console.WriteLine("=== TODAS LAS TAREAS DEL SISTEMA ===\n");
-
             var tareas = _service.ObtenerTodas();
             MostrarListado(tareas, conDetallesAdmin: true);
             Console.WriteLine("\nPresione Enter para continuar...");
             Console.ReadLine();
         }
 
-        private void AdministrarTareasDeUsuario()
+        private void GestionarUsuario()
         {
-            var usuarioId = PedirUsuarioId();
-            if (usuarioId == null) return;
+            // Obtener todos los usuarios menos el admin actual
+            var usuarios = _service.ObtenerTodosLosUsuarios()
+                .Where(u => u.Id != _usuarioActual!.Id)
+                .ToList();
 
-            var tareas = _service.ObtenerPorUsuario(usuarioId.Value);
+            if (usuarios.Count == 0)
+            {
+                Console.WriteLine("No hay otros usuarios registrados.");
+                Console.ReadLine();
+                return;
+            }
+
             LimpiarPantalla();
-            Console.WriteLine($"=== TAREAS DEL USUARIO {usuarioId} ===\n");
+            Console.WriteLine("=== SELECCIONAR USUARIO ===\n");
+            for (int i = 0; i < usuarios.Count; i++)
+            {
+                Console.WriteLine($"[{i + 1}] {usuarios[i].Nombre} ({usuarios[i].Rol})");
+            }
+            Console.WriteLine("0. Volver");
+            Console.Write("\nSeleccione un usuario: ");
+
+            if (!int.TryParse(Console.ReadLine(), out int idx) || idx < 1 || idx > usuarios.Count)
+                return;
+
+            var usuarioSeleccionado = usuarios[idx - 1];
+            var tareas = _service.ObtenerPorUsuario(usuarioSeleccionado.Id);
+
+            LimpiarPantalla();
+            Console.WriteLine($"=== TAREAS DE {usuarioSeleccionado.Nombre} ===\n");
 
             if (tareas.Count == 0)
             {
@@ -354,71 +373,42 @@ namespace GestorTareas.UI
             MostrarListado(tareas, conDetallesAdmin: true);
 
             Console.WriteLine("\n--- ACCIONES ---");
-            Console.WriteLine("1. Editar una tarea");
+            Console.WriteLine("1. Editar datos de una tarea");
             Console.WriteLine("2. Cambiar estado de una tarea");
             Console.WriteLine("3. Eliminar una tarea (borrado completo de BD)");
-            Console.WriteLine("0. Volver al menú principal");
+            Console.WriteLine("0. Volver");
             Console.Write("\nSeleccione: ");
 
-            string opcion = Console.ReadLine() ?? string.Empty;
-            switch (opcion)
+            string opc = Console.ReadLine() ?? string.Empty;
+
+            switch (opc)
             {
                 case "1":
-                    EditarTareaAdmin(tareas);
+                    var t1 = SeleccionarTarea(tareas, "EDITAR TAREA");
+                    if (t1 != null) EditarDatosTarea(t1);
                     break;
                 case "2":
-                    CambiarEstadoTareaAdmin(tareas);
+                    var t2 = SeleccionarTarea(tareas, "CAMBIAR ESTADO");
+                    if (t2 != null) CambiarEstadoInteractivo(t2);
                     break;
                 case "3":
-                    EliminarTareaAdmin(tareas);
+                    var t3 = SeleccionarTarea(tareas, "ELIMINAR TAREA");
+                    if (t3 != null) { _service.EliminarTarea(t3.Id); Console.WriteLine("✓ Tarea eliminada permanentemente de la BD"); Console.ReadLine(); }
                     break;
-                default:
-                    return;
             }
         }
 
-        private void EditarTareaAdmin(System.Collections.Generic.List<Tarea> tareas)
+        private Tarea? SeleccionarTarea(System.Collections.Generic.List<Tarea> tareas, string titulo)
         {
-            ListarTareasConIndices(tareas, "=== EDITAR TAREA (ADMIN) ===");
-            Console.Write("\nSeleccione el número de tarea a editar: ");
+            ListarTareasConIndices(tareas, $"=== {titulo} ===");
+            Console.Write("\nSeleccione el número de tarea: ");
             if (!int.TryParse(Console.ReadLine(), out int indice) || indice < 1 || indice > tareas.Count)
             {
                 Console.WriteLine("Selección no válida");
                 Console.ReadLine();
-                return;
+                return null;
             }
-
-            EditarDatosTarea(tareas[indice - 1]);
-        }
-
-        private void CambiarEstadoTareaAdmin(System.Collections.Generic.List<Tarea> tareas)
-        {
-            ListarTareasConIndices(tareas, "=== CAMBIAR ESTADO (ADMIN) ===");
-            Console.Write("\nSeleccione la tarea: ");
-            if (!int.TryParse(Console.ReadLine(), out int indice) || indice < 1 || indice > tareas.Count)
-            {
-                Console.WriteLine("Selección no válida");
-                Console.ReadLine();
-                return;
-            }
-
-            CambiarEstadoInteractivo(tareas[indice - 1]);
-        }
-
-        private void EliminarTareaAdmin(System.Collections.Generic.List<Tarea> tareas)
-        {
-            ListarTareasConIndices(tareas, "=== ELIMINAR TAREA (ADMIN) ===");
-            Console.Write("\nSeleccione la tarea a eliminar: ");
-            if (!int.TryParse(Console.ReadLine(), out int indice) || indice < 1 || indice > tareas.Count)
-            {
-                Console.WriteLine("Selección no válida");
-                Console.ReadLine();
-                return;
-            }
-
-            _service.EliminarTarea(tareas[indice - 1].Id);
-            Console.WriteLine("✓ Tarea eliminada permanentemente de la BD");
-            Console.ReadLine();
+            return tareas[indice - 1];
         }
 
         private void MostrarEstadisticas()
@@ -452,25 +442,33 @@ namespace GestorTareas.UI
             Console.ReadLine();
         }
 
+        private void MostrarEstadisticasGlobales()
+        {
+            LimpiarPantalla();
+            Console.WriteLine("=== ESTADÍSTICAS GLOBALES (ADMIN) ===\n");
+            Console.WriteLine($"Total tareas en sistema: {_service.TotalTareas}");
+            Console.WriteLine($"├─ Pendientes: {_service.TareasPendientes}");
+            Console.WriteLine($"├─ En progreso: {_service.TareasEnProgreso}");
+            Console.WriteLine($"├─ Completadas: {_service.TareasCompletadas}");
+            Console.WriteLine($"└─ Canceladas: {_service.TareasCanceladas}");
+            Console.WriteLine($"\nTareas vencidas: {_service.TareasVencidas}");
+            Console.WriteLine($"Tareas eliminadas: {_service.TareasEliminadas}");
+            Console.WriteLine("\n--- Por prioridad ---");
+            Console.WriteLine($"Alta: {_service.TareasPorPrioridad(PrioridadTarea.Alta)}");
+            Console.WriteLine($"Media: {_service.TareasPorPrioridad(PrioridadTarea.Media)}");
+            Console.WriteLine($"Baja: {_service.TareasPorPrioridad(PrioridadTarea.Baja)}");
+            Console.WriteLine("\n--- Por tipo ---");
+            Console.WriteLine($"Simples: {_service.TareasSimples}");
+            Console.WriteLine($"Recurrentes: {_service.TareasRecurrentes}");
+            Console.WriteLine($"Urgentes: {_service.TareasUrgentes}");
+
+            Console.WriteLine("\nPresione Enter para continuar...");
+            Console.ReadLine();
+        }
+
         // ============================================================
         //  MÉTODOS COMPARTIDOS
         // ============================================================
-
-        private Guid? PedirUsuarioId()
-        {
-            LimpiarPantalla();
-            Console.WriteLine("=== BUSCAR USUARIO ===");
-            Console.WriteLine("Introduce el Guid del usuario para gestionar sus tareas.");
-            Console.WriteLine("Admin: 11111111-1111-1111-1111-111111111111");
-            Console.Write("UsuarioId: ");
-            if (!Guid.TryParse(Console.ReadLine(), out var usuarioId))
-            {
-                Console.WriteLine("Guid inválido.");
-                Console.ReadLine();
-                return null;
-            }
-            return usuarioId;
-        }
 
         private void EditarDatosTarea(Tarea tarea)
         {
@@ -514,7 +512,7 @@ namespace GestorTareas.UI
             LimpiarPantalla();
             Console.WriteLine($"=== CAMBIAR ESTADO: {tarea.Titulo} ===");
             Console.WriteLine($"Estado actual: {tarea.Estado}");
-            Console.WriteLine("\nNuevo estado:");
+            Console.WriteLine("\nOpciones:");
             Console.WriteLine("1. Iniciar (Pendiente → EnProgreso)");
             Console.WriteLine("2. Completar");
             Console.WriteLine("3. Cancelar");
@@ -561,14 +559,11 @@ namespace GestorTareas.UI
             }
 
             foreach (var t in tareas)
-            {
                 MostrarTarea(t, conDetallesAdmin);
-            }
         }
 
         private void MostrarTarea(Tarea tarea, bool conDetallesAdmin = false)
         {
-            // Vista para usuario normal (sin IDs internos)
             Console.WriteLine($"   [{tarea.Estado}] {tarea.Titulo}");
             Console.WriteLine($"   Descripción: {tarea.Descripcion}");
             Console.WriteLine($"   Fecha límite: {tarea.FechaLimite:dd/MM/yyyy}");
@@ -585,7 +580,6 @@ namespace GestorTareas.UI
             if (tarea.EstaVencida)
                 Console.WriteLine($"   ⚠ VENCIDA");
 
-            // Solo admin ve detalles internos
             if (conDetallesAdmin)
             {
                 Console.WriteLine($"   ID: {tarea.Id}");
