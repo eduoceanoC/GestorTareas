@@ -19,11 +19,11 @@ namespace GestorTareas.Services.Auth
             _jwtSettings = jwtOptions.Value;
         }
 
-        public LoginResponseDto? Login(string email, string password)
+        public LoginResponseDto? Login(string nombre, string password)
         {
             var usuario = _context.Usuarios
                 .AsNoTracking()
-                .FirstOrDefault(u => u.Email == email);
+                .FirstOrDefault(u => u.Nombre == nombre);
 
             if (usuario == null)
                 return null;
@@ -34,16 +34,15 @@ namespace GestorTareas.Services.Auth
             return GenerarToken(usuario);
         }
 
-        public LoginResponseDto? Registrar(string nombre, string email, string password)
+        public LoginResponseDto? Registrar(string nombre, string password)
         {
-            if (_context.Usuarios.Any(u => u.Email == email))
+            if (_context.Usuarios.Any(u => u.Nombre == nombre))
                 return null;
 
             var usuario = new Usuario
             {
                 Id = Guid.NewGuid(),
                 Nombre = nombre,
-                Email = email,
                 Password = BCrypt.Net.BCrypt.HashPassword(password),
                 Rol = "user"
             };
@@ -52,21 +51,6 @@ namespace GestorTareas.Services.Auth
             _context.SaveChanges();
 
             return GenerarToken(usuario);
-        }
-
-        public Usuario? ValidarCredenciales(string email, string password)
-        {
-            var usuario = _context.Usuarios
-                .AsNoTracking()
-                .FirstOrDefault(u => u.Email == email);
-
-            if (usuario == null)
-                return null;
-
-            if (!BCrypt.Net.BCrypt.Verify(password, usuario.Password))
-                return null;
-
-            return usuario;
         }
 
         public Usuario? ValidarCredencialesPorNombre(string nombre, string password)
@@ -93,7 +77,6 @@ namespace GestorTareas.Services.Auth
             {
                 Id = Guid.NewGuid(),
                 Nombre = nombre,
-                Email = $"{nombre}@gestortareas.local",
                 Password = BCrypt.Net.BCrypt.HashPassword(password),
                 Rol = "user"
             };
@@ -110,11 +93,9 @@ namespace GestorTareas.Services.Auth
             var claims = new List<Claim>
             {
                 new(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
-                new(JwtRegisteredClaimNames.Email, usuario.Email),
                 new(JwtRegisteredClaimNames.UniqueName, usuario.Nombre),
                 new(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
                 new(ClaimTypes.Name, usuario.Nombre),
-                new(ClaimTypes.Email, usuario.Email),
                 new(ClaimTypes.Role, usuario.Rol)
             };
 
@@ -134,7 +115,6 @@ namespace GestorTareas.Services.Auth
                 ExpiraEn = expiraEn,
                 Id = usuario.Id,
                 Nombre = usuario.Nombre,
-                Email = usuario.Email,
                 Rol = usuario.Rol
             };
         }

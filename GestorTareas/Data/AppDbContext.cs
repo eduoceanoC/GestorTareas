@@ -18,10 +18,9 @@ namespace GestorTareas.Data
                 entity.ToTable("Usuarios");
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Nombre).HasMaxLength(100).IsRequired();
-                entity.Property(e => e.Email).HasMaxLength(200).IsRequired();
                 entity.Property(e => e.Password).HasMaxLength(200).IsRequired();
                 entity.Property(e => e.Rol).HasMaxLength(20).IsRequired();
-                entity.HasIndex(e => e.Email).IsUnique();
+                entity.HasIndex(e => e.Nombre).IsUnique();
             });
 
             modelBuilder.Entity<Tarea>(entity =>

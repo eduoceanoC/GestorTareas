@@ -19,7 +19,7 @@ namespace GestorTareas.Api.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginRequestDto dto)
         {
-            var response = _authService.Login(dto.Email, dto.Password);
+            var response = _authService.Login(dto.Nombre, dto.Password);
 
             if (response == null)
             {
@@ -33,16 +33,16 @@ namespace GestorTareas.Api.Controllers
         [HttpPost("register")]
         public IActionResult Register([FromBody] RegistroRequestDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Nombre) || string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
+            if (string.IsNullOrWhiteSpace(dto.Nombre) || string.IsNullOrWhiteSpace(dto.Password))
             {
                 return BadRequest("Todos los campos son obligatorios.");
             }
 
-            var response = _authService.Registrar(dto.Nombre, dto.Email, dto.Password);
+            var response = _authService.Registrar(dto.Nombre, dto.Password);
 
             if (response == null)
             {
-                return Conflict("El email ya está registrado.");
+                return Conflict("El nombre de usuario ya está registrado.");
             }
 
             return Ok(response);

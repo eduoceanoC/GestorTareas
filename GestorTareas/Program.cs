@@ -126,7 +126,6 @@ static void SeedUsuarios(AppDbContext dbContext)
             {
                 Id = adminId,
                 Nombre = "admin",
-                Email = "admin@gestortareas.local",
                 Password = BCrypt.Net.BCrypt.HashPassword("admin"),
                 Rol = "admin"
             },
@@ -134,7 +133,6 @@ static void SeedUsuarios(AppDbContext dbContext)
             {
                 Id = pedroId,
                 Nombre = "pedro",
-                Email = "pedro@gestortareas.local",
                 Password = BCrypt.Net.BCrypt.HashPassword("pedro"),
                 Rol = "user"
             },
@@ -142,7 +140,6 @@ static void SeedUsuarios(AppDbContext dbContext)
             {
                 Id = mariaId,
                 Nombre = "maria",
-                Email = "maria@gestortareas.local",
                 Password = BCrypt.Net.BCrypt.HashPassword("maria"),
                 Rol = "user"
             }

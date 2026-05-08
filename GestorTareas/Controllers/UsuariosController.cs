@@ -26,7 +26,6 @@ namespace GestorTareas.Api.Controllers
                 {
                     u.Id,
                     u.Nombre,
-                    u.Email,
                     u.Rol
                 })
                 .ToList();
