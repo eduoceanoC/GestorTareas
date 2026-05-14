@@ -146,6 +146,44 @@ namespace GestorTareas.Api.Controllers
             return Ok(tareas);
         }
 
+        [HttpPost("{id}/iniciar")]
+        public IActionResult Iniciar(Guid id)
+        {
+            var tarea = _servicio.ObtenerPorId(id);
+            if (tarea == null)
+                return NotFound();
+
+            var usuarioId = ObtenerUsuarioId();
+            var esAdmin = EsAdmin();
+            if (!_servicio.PuedeAdministrarTarea(tarea, usuarioId, esAdmin))
+                return Forbid();
+
+            if (!tarea.Iniciar())
+                return BadRequest("No se pudo iniciar la tarea. Solo se puede iniciar desde Pendiente.");
+
+            _servicio.GuardarCambios(tarea);
+            return Ok(tarea);
+        }
+
+        [HttpPost("{id}/completar")]
+        public IActionResult Completar(Guid id)
+        {
+            var tarea = _servicio.ObtenerPorId(id);
+            if (tarea == null)
+                return NotFound();
+
+            var usuarioId = ObtenerUsuarioId();
+            var esAdmin = EsAdmin();
+            if (!_servicio.PuedeAdministrarTarea(tarea, usuarioId, esAdmin))
+                return Forbid();
+
+            if (!tarea.Completar())
+                return BadRequest("No se pudo completar la tarea.");
+
+            _servicio.GuardarCambios(tarea);
+            return Ok(tarea);
+        }
+
         [HttpPost("{id}/generar-siguiente")]
         public IActionResult GenerarSiguiente(Guid id)
         {

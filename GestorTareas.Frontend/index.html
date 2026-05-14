@@ -18,11 +18,11 @@
         <div class="win-body">
 
             <pre class="logo">
- ██████  ███████ ███████ ████████  ██████  ██████
-██       ██      ██         ██    ██    ██ ██   ██
+  ██████  ███████ ███████ ████████  ██████  ██████
+ ██       ██      ██         ██    ██    ██ ██   ██
 ██   ███ █████   ███████    ██    ██    ██ ██████
-██    ██ ██           ██    ██    ██    ██ ██   ██
- ██████  ███████ ███████    ██     ██████  ██   ██
+ ██    ██ ██           ██    ██    ██    ██ ██   ██
+  ██████  ███████ ███████    ██     ██████  ██   ██
 </pre>
 
             <div class="menu-box">
@@ -101,12 +101,11 @@
                 <div class="menu-option" data-action="agregar">  1. AGREGAR NUEVA TAREA</div>
                 <div class="menu-option" data-action="listar">   2. LISTAR MIS TAREAS</div>
                 <div class="menu-option" data-action="editar">   3. EDITAR / CAMBIAR ESTADO</div>
-                <div class="menu-option" data-action="cancelar"> 4. CANCELAR UNA TAREA</div>
-                <div class="menu-option" data-action="mystats">  5. VER MIS ESTADISTICAS</div>
-                <div class="menu-option admin-only" data-action="admin-todas">   6. [ADMIN] VER TODAS LAS TAREAS</div>
-                <div class="menu-option admin-only" data-action="admin-gestion">  7. [ADMIN] GESTIONAR USUARIO</div>
-                <div class="menu-option admin-only" data-action="admin-stats">    8. [ADMIN] ESTADISTICAS GLOBALES</div>
-                <div class="menu-option" data-action="logout">   6. CERRAR SESION</div>
+                <div class="menu-option" data-action="mystats">  4. VER MIS ESTADISTICAS</div>
+                <div class="menu-option admin-only" data-action="admin-todas">   5. [ADMIN] VER TODAS LAS TAREAS</div>
+                <div class="menu-option admin-only" data-action="admin-gestion">  6. [ADMIN] GESTIONAR USUARIO</div>
+                <div class="menu-option admin-only" data-action="admin-stats">    7. [ADMIN] ESTADISTICAS GLOBALES</div>
+                <div class="menu-option" data-action="logout">   8. CERRAR SESION</div>
             </div>
 
             <div class="prompt-line">
@@ -284,6 +283,10 @@
                 <span class="toolbar-counter" id="admin-todas-counter"></span>
             </div>
             <div id="output-admin-todas" class="output-area"></div>
+            <div class="prompt-line">
+                <span class="prompt">ADMIN> </span>
+                <input type="text" id="input-admin-todas-sel" class="cmd-input" placeholder="numero de tarea o accion">
+            </div>
         </div>
     </div>
 
@@ -307,8 +310,10 @@
                 <div class="output-area">
                     <div class="line">--- ACCIONES ---</div>
                     <div class="line">  1. EDITAR DATOS DE UNA TAREA</div>
-                    <div class="line">  2. CAMBIAR ESTADO DE UNA TAREA</div>
-                    <div class="line">  3. ELIMINAR TAREA (BORRADO COMPLETO)</div>
+                    <div class="line">  2. INICIAR (Pendiente → EnProgreso)</div>
+                    <div class="line">  3. COMPLETAR</div>
+                    <div class="line">  4. CANCELAR</div>
+                    <div class="line">  5. ELIMINAR TAREA (BORRADO COMPLETO)</div>
                     <div class="line">  0. VOLVER</div>
                 </div>
                 <div class="prompt-line">
@@ -325,6 +330,26 @@
 
             <button id="btn-admin-gestion-back" class="cmd-btn cmd-btn-dim">[ VOLVER AL MENU ]</button>
             <div id="output-admin-gestion" class="output-area"></div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- CONFIRMACION FLOTANTE (overlay)             -->
+    <!-- ============================================ -->
+    <div id="win-confirmacion" class="ventana oculta" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;">
+        <div style="background:#1a1a2e;border:2px solid #e94560;padding:30px;max-width:500px;text-align:center;">
+            <div class="win-title">GESTORTAREAS :: CONFIRMAR</div>
+            <div class="win-body">
+                <div id="confirmacion-mensaje" class="line line-warn" style="font-size:1.2em;margin:20px 0;"></div>
+                <div class="prompt-line">
+                    <span class="prompt">CONFIRMAR (s/n)> </span>
+                    <input type="text" id="input-confirmacion" class="cmd-input" placeholder="s o n" autofocus>
+                </div>
+                <div class="form-actions" style="margin-top:15px;">
+                    <button id="btn-confirmar-si" class="cmd-btn cmd-btn-danger">[ SI ]</button>
+                    <button id="btn-confirmar-no" class="cmd-btn cmd-btn-dim">[ NO ]</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -424,22 +449,14 @@
         if (t.responsable) s += `<div class="line">   Responsable: ${t.responsable}</div>`;
         if (t.motivoCancelacion) s += `<div class="line line-warn">   Motivo cancelacion: ${t.motivoCancelacion}</div>`;
         if (t.estaVencida) s += `<div class="line line-error">   ! VENCIDA</div>`;
+        if (t.estado === 2 || t.estado === 'Completada') s += `<div class="line line-ok">   ✓ COMPLETADA</div>`;
 
         if (conDetallesAdmin) {
             s += `<div class="line line-dim">   ID: ${id}</div>`;
             s += `<div class="line line-dim">   UsuarioId: ${t.usuarioId || 'N/D'}</div>`;
             s += `<div class="line line-dim">   Usuario: ${t.usuario?.nombre || t.usuarioNombre || 'N/D'}</div>`;
-        }
-
-        // Botones de acción rápida (quality of life)
-        if (t.estado === 0 || t.estado === 'Pendiente') {
-            s += `<div class="line">   <button class="cmd-btn cmd-btn-xs cmd-action-completar" data-id="${id}">[ COMPLETAR ]</button>`
-               + ` <button class="cmd-btn cmd-btn-xs cmd-btn-danger cmd-action-eliminar" data-id="${id}">[ ELIMINAR ]</button></div>`;
-        } else if (t.estado === 1 || t.estado === 'EnProgreso') {
-            s += `<div class="line">   <button class="cmd-btn cmd-btn-xs cmd-action-completar" data-id="${id}">[ COMPLETAR ]</button>`
-               + ` <button class="cmd-btn cmd-btn-xs cmd-btn-danger cmd-action-eliminar" data-id="${id}">[ ELIMINAR ]</button></div>`;
-        } else {
-            s += `<div class="line">   <button class="cmd-btn cmd-btn-xs cmd-btn-danger cmd-action-eliminar" data-id="${id}">[ ELIMINAR ]</button></div>`;
+            s += `<div class="line">   [ <a href="#" class="cmd-link cmd-action-completar" data-id="${id}">COMPLETAR</a> ]`
+               + ` [ <a href="#" class="cmd-link cmd-link-danger cmd-action-eliminar" data-id="${id}">ELIMINAR</a> ]</div>`;
         }
 
         s += '<div class="line"> </div>';
@@ -590,13 +607,12 @@
         if (v === '1') abrirAgregar();
         else if (v === '2') listarMisTareas();
         else if (v === '3') abrirEditar();
-        else if (v === '4') abrirCancelar();
-        else if (v === '5') mostrarMisStats();
-        else if (v === '6' && !esAdmin) logout();
-        else if (v === '6' && esAdmin) adminVerTodas();
-        else if (v === '7' && esAdmin) adminGestionarUsuario();
-        else if (v === '8' && esAdmin) adminStats();
-        else if (v === '9' && esAdmin) logout();
+        else if (v === '4') mostrarMisStats();
+        else if (v === '5' && esAdmin) adminVerTodas();
+        else if (v === '5' && !esAdmin) logout();
+        else if (v === '6' && esAdmin) adminGestionarUsuario();
+        else if (v === '7' && esAdmin) adminStats();
+        else if (v === '8' && esAdmin) logout();
         else mostrarError('output-menu', 'Opcion no valida');
     });
 
@@ -609,7 +625,6 @@
             else if (action === 'agregar') abrirAgregar();
             else if (action === 'listar') listarMisTareas();
             else if (action === 'editar') abrirEditar();
-            else if (action === 'cancelar') abrirCancelar();
             else if (action === 'mystats') mostrarMisStats();
             else if (action === 'admin-todas') adminVerTodas();
             else if (action === 'admin-gestion') adminGestionarUsuario();
@@ -735,7 +750,33 @@
     }
 
     async function listarMisTareas() {
-        await listarTareas('output-listar', 'listar-title', 'listar-counter', false, 'btn-listar-back');
+        try {
+            const data = await apiFetch('/tareas?pagina=1&porPagina=100');
+            if (!data) return;
+
+            const todas = data.datos || data.items || data || [];
+            const tareas = todas.filter(t => t.usuarioId === currentUser.id);
+            tareasCache = tareas;
+
+            mostrar('win-listar');
+            $('listar-title').textContent = 'MIS TAREAS';
+            $('listar-counter').textContent = 'TOTAL: ' + tareas.length;
+            clearOutput('output-listar');
+
+            if (tareas.length === 0) {
+                outputLn('output-listar', 'No hay tareas para mostrar.');
+                return;
+            }
+
+            outputLn('output-listar', '=== MIS TAREAS ===', 'line-title');
+            outputLn('output-listar', '');
+
+            tareas.forEach((t, i) => {
+                output('output-listar', formatearTarea(t, i + 1, false));
+            });
+        } catch (err) {
+            mostrarError('output-listar', 'Error al cargar tareas: ' + err.message);
+        }
     }
 
     $('btn-listar-back').addEventListener('click', abrirMenu);
@@ -745,27 +786,20 @@
         // Completar rápido
         const btnCompletar = e.target.closest('.cmd-action-completar');
         if (btnCompletar) {
+            e.preventDefault();
             const id = btnCompletar.dataset.id;
             try {
-                // Cambiar estado a Completada (2) vía cancelar con motivo vacío? No, mejor usamos PUT para editar estado
-                // La API no tiene endpoint directo para completar, así que hacemos un POST a cancelar no sirve.
-                // Buscamos la tarea y llamamos a POST /api/tareas/{id}/cancelar no es correcto.
-                // La API tiene PUT /api/tareas/{id} que edita. No permite cambiar estado.
-                // La opción más limpia: obtener tarea y luego llamar a cancelar no es lo mismo.
-                // Usamos el endpoint de estado: no existe específico para completar.
-                // Lo mejor: hacemos fetch a la tarea, la editamos.
-
-                // Estrategia: obtener la tarea, luego PUT con los mismos datos pero reflejando completada
-                // No tenemos endpoint para cambiar estado directamente. Entonces mejor usar el flujo normal de editar.
-                // Para acción rápida: haremos POST a cancelar no es correcto. Mejor:
-
-                // Opción viable: llamamos a PUT /api/tareas/{id} con el dto actual pero no cambia estado.
-                // No hay endpoint. Entonces redirigimos al menú de editar con esa tarea preseleccionada.
-
-                // Lo más práctico: mostrar mensaje y usar el flujo normal.
-                mostrarError('output-menu', 'Use opcion 3 (Editar/Cambiar estado) para cambiar estado');
+                const data = await apiFetch('/tareas/' + id + '/completar', { method: 'POST' });
+                if (data) {
+                    mostrarOk('output-admin-todas', '✓ Tarea completada correctamente');
+                    // Recargar la vista actual
+                    const visibles = document.querySelectorAll('.ventana:not(.oculta)');
+                    for (const v of visibles) {
+                        if (v.id === 'win-admin-todas') { await adminVerTodas(); break; }
+                    }
+                }
             } catch (err) {
-                mostrarError('output-menu', 'Error: ' + err.message);
+                mostrarError('output-admin-todas', 'Error: ' + err.message);
             }
             return;
         }
@@ -773,22 +807,29 @@
         // Eliminar rápido
         const btnEliminar = e.target.closest('.cmd-action-eliminar');
         if (btnEliminar) {
+            e.preventDefault();
             const id = btnEliminar.dataset.id;
-            if (!confirm('Eliminar tarea ' + id + '?')) return;
-
-            try {
-                await apiFetch('/tareas/' + id, { method: 'DELETE' });
-                mostrarOk('output-menu', 'Tarea eliminada permanentemente');
-
-                // Recargar la vista actual
-                const visibles = document.querySelectorAll('.ventana:not(.oculta)');
-                for (const v of visibles) {
-                    if (v.id === 'win-listar') { await listarMisTareas(); break; }
-                    if (v.id === 'win-admin-todas') { await adminVerTodas(); break; }
+            const t = tareasCache.find(t => (t.id || t.tareaId) === id);
+            window.__eliminarPendienteId = id;
+            window.__eliminarCallback = async function(confirmado) {
+                if (!confirmado) { ocultarTodas(); adminVerTodas(); return; }
+                try {
+                    const data = await apiFetch('/tareas/' + id, { method: 'DELETE' });
+                    if (data !== null) {
+                        ocultarTodas();
+                        adminVerTodas();
+                        mostrarOk('output-menu', '✓ Tarea eliminada permanentemente');
+                    }
+                } catch (err) {
+                    ocultarTodas();
+                    adminVerTodas();
+                    mostrarError('output-menu', 'Error al eliminar: ' + err.message);
                 }
-            } catch (err) {
-                mostrarError('output-menu', 'Error al eliminar: ' + err.message);
-            }
+            };
+            $('confirmacion-mensaje').textContent = 'Eliminar tarea "' + (t?.titulo || id) + '" permanentemente?';
+            mostrar('win-confirmacion');
+            $('input-confirmacion').value = '';
+            $('input-confirmacion').focus();
             return;
         }
     });
@@ -805,9 +846,10 @@
         $('editar-paso3-estado').classList.add('oculta');
         $('editar-motivo-group').classList.add('oculta');
 
-        // Cargar mis tareas desde API
+        // Cargar mis tareas desde API (solo las del usuario actual)
         apiFetch('/tareas?pagina=1&porPagina=100').then(data => {
-            const tareas = data.datos || data.items || data || [];
+            const todas = data.datos || data.items || data || [];
+            const tareas = todas.filter(t => t.usuarioId === currentUser.id);
             tareasCache = tareas;
 
             if (tareas.length === 0) {
@@ -915,23 +957,23 @@
         const t = editandoTarea;
         const id = t.id || t.tareaId;
 
-        if (v === '1') {
-            if (t.estado !== 0) { mostrarError('output-editar', 'Solo se puede iniciar desde Pendiente'); return; }
-            // No hay endpoint para iniciar. Usamos cancelar? No. Hacemos PUT con el mismo body no cambia estado.
-            // No tenemos forma directa. Mejor indicar que use el flujo de cancelar.
-            mostrarError('output-editar', 'Use opcion 3 Cancelar o Completar (2)');
-        } else if (v === '2') {
-            // Completar: no hay endpoint directo. Usamos PUT pero no cambia estado.
-            // Alternativa: POST a cancelar con motivo vacío? No.
-            // Lo siento, la API no permite cambiar estado directamente excepto cancelar.
-            // Cancelar cambia a Cancelada. Para completar no hay endpoint.
-            // Mejor: indicamos al usuario.
-            mostrarError('output-editar', 'La API no permite completar directamente. Use Cancelar (3)');
-        } else if (v === '3') {
-            $('editar-motivo-group').classList.remove('oculta');
-            $('editar-motivo').focus();
-        } else {
-            mostrarError('output-editar', 'Opcion no valida');
+        try {
+            if (v === '1') {
+                if (t.estado !== 0) { mostrarError('output-editar', 'Solo se puede iniciar desde Pendiente'); return; }
+                const data = await apiFetch('/tareas/' + id + '/iniciar', { method: 'POST' });
+                if (data) { mostrarOk('output-editar', '✓ Tarea iniciada correctamente'); setTimeout(() => abrirEditar(), 1000); }
+            } else if (v === '2') {
+                if (t.estado === 2 || t.estado === 3) { mostrarError('output-editar', 'La tarea ya está completada o cancelada'); return; }
+                const data = await apiFetch('/tareas/' + id + '/completar', { method: 'POST' });
+                if (data) { mostrarOk('output-editar', '✓ Tarea completada correctamente'); setTimeout(() => abrirEditar(), 1000); }
+            } else if (v === '3') {
+                $('editar-motivo-group').classList.remove('oculta');
+                $('editar-motivo').focus();
+            } else {
+                mostrarError('output-editar', 'Opcion no valida');
+            }
+        } catch (err) {
+            mostrarError('output-editar', 'Error: ' + err.message);
         }
     });
 
@@ -1059,7 +1101,10 @@
     $('btn-stats-back').addEventListener('click', abrirMenu);
 
     // ─── ADMIN: VER TODAS ───
+    let modoAdminTodas = 'listar'; // 'listar' | 'accion'
+
     async function adminVerTodas() {
+        modoAdminTodas = 'listar';
         try {
             const data = await apiFetch('/tareas?pagina=1&porPagina=1000');
             if (!data) return;
@@ -1073,6 +1118,8 @@
 
             if (tareas.length === 0) {
                 outputLn('output-admin-todas', 'No hay tareas en el sistema.');
+                outputLn('output-admin-todas', '');
+                outputLn('output-admin-todas', '0. VOLVER');
                 return;
             }
 
@@ -1081,10 +1128,83 @@
             tareas.forEach((t, i) => {
                 output('output-admin-todas', formatearTarea(t, i + 1, true));
             });
+            outputLn('output-admin-todas', '');
+            outputLn('output-admin-todas', 'Seleccione un numero de tarea para acceder a sus acciones:');
+            outputLn('output-admin-todas', '0. VOLVER AL MENU');
+            $('input-admin-todas-sel').focus();
         } catch (err) {
             mostrarError('output-admin-todas', 'Error: ' + err.message);
         }
     }
+
+    setupEnterInput('input-admin-todas-sel', function(valor) {
+        const v = valor.trim();
+        if (v === '0') { abrirMenu(); return; }
+        if (modoAdminTodas !== 'listar') return;
+
+        const idx = parseInt(v);
+        if (isNaN(idx) || idx < 1 || idx > tareasCache.length) {
+            mostrarError('output-admin-todas', 'Seleccion no valida');
+            return;
+        }
+
+        const t = tareasCache[idx - 1];
+        editandoTarea = t;
+        modoAdminTodas = 'accion';
+
+        clearOutput('output-admin-todas');
+        outputLn('output-admin-todas', `=== TAREA: ${t.titulo} ===`, 'line-title');
+        outputLn('output-admin-todas', '');
+        output('output-admin-todas', formatearTarea(t, null, true));
+        outputLn('output-admin-todas', '');
+        outputLn('output-admin-todas', '--- ACCIONES ---', 'line-title');
+        outputLn('output-admin-todas', '  1. INICIAR (Pendiente → EnProgreso)');
+        outputLn('output-admin-todas', '  2. COMPLETAR');
+        outputLn('output-admin-todas', '  3. CANCELAR');
+        outputLn('output-admin-todas', '  4. ELIMINAR (borrado permanente)');
+        outputLn('output-admin-todas', '  5. VOLVER AL LISTADO');
+        outputLn('output-admin-todas', '  0. VOLVER AL MENU');
+        $('input-admin-todas-sel').focus();
+    });
+
+    setupEnterInput('input-admin-todas-accion', async function(valor) {
+        const v = valor.trim();
+        if (modoAdminTodas !== 'accion') return;
+
+        const t = editandoTarea;
+        const id = t.id || t.tareaId;
+
+        if (v === '0') { abrirMenu(); return; }
+        if (v === '5') { adminVerTodas(); return; }
+
+        try {
+            let data;
+            switch (v) {
+                case '1':
+                    data = await apiFetch('/tareas/' + id + '/iniciar', { method: 'POST' });
+                    if (data) { mostrarOk('output-admin-todas', 'Tarea iniciada correctamente'); setTimeout(() => adminVerTodas(), 1000); }
+                    break;
+                case '2':
+                    data = await apiFetch('/tareas/' + id + '/completar', { method: 'POST' });
+                    if (data) { mostrarOk('output-admin-todas', 'Tarea completada correctamente'); setTimeout(() => adminVerTodas(), 1000); }
+                    break;
+                case '3':
+                    const motivo = prompt('Motivo de cancelacion:', '') || 'Cancelada por admin';
+                    data = await apiFetch('/tareas/' + id + '/cancelar', { method: 'POST', body: JSON.stringify(motivo) });
+                    if (data) { mostrarOk('output-admin-todas', 'Tarea cancelada correctamente'); setTimeout(() => adminVerTodas(), 1000); }
+                    break;
+                case '4':
+                    if (!confirm('Eliminar tarea ' + t.titulo + ' permanentemente?')) return;
+                    data = await apiFetch('/tareas/' + id, { method: 'DELETE' });
+                    if (data !== null) { mostrarOk('output-admin-todas', 'Tarea eliminada permanentemente'); setTimeout(() => adminVerTodas(), 1000); }
+                    break;
+                default:
+                    mostrarError('output-admin-todas', 'Opcion no valida');
+            }
+        } catch (err) {
+            mostrarError('output-admin-todas', 'Error: ' + err.message);
+        }
+    });
 
     $('btn-admin-todas-back').addEventListener('click', abrirMenu);
 
@@ -1164,7 +1284,7 @@
         const v = valor.trim();
         if (v === '0') { adminGestionarUsuario(); return; }
 
-        if (v !== '1' && v !== '2' && v !== '3') {
+        if (v !== '1' && v !== '2' && v !== '3' && v !== '4' && v !== '5') {
             mostrarError('output-admin-gestion', 'Opcion no valida');
             return;
         }
@@ -1198,61 +1318,48 @@
         const id = t.id || t.tareaId;
         $('admin-gestion-seltarea').classList.add('oculta');
 
-        switch (adminGestionAccion) {
-            case 1: {
-                const nuevoTit = prompt('Nuevo titulo (Enter = sin cambios):', t.titulo);
-                const nuevaDesc = prompt('Nueva descripcion (Enter = sin cambios):', t.descripcion || '');
-                const nuevaPri = prompt('Nueva prioridad 1=Baja 2=Media 3=Alta (Enter = sin cambios):', (t.prioridad + 1).toString());
+        try {
+            let data;
+            switch (adminGestionAccion) {
+                case 1: {
+                    const nuevoTit = prompt('Nuevo titulo (Enter = sin cambios):', t.titulo);
+                    const nuevaDesc = prompt('Nueva descripcion (Enter = sin cambios):', t.descripcion || '');
+                    const nuevaPri = prompt('Nueva prioridad 1=Baja 2=Media 3=Alta (Enter = sin cambios):', (t.prioridad + 1).toString());
 
-                const body = {
-                    tipo: t.tipoTarea || 1,
-                    titulo: (nuevoTit && nuevoTit.trim()) ? nuevoTit.trim() : t.titulo,
-                    descripcion: nuevaDesc || t.descripcion || '',
-                    prioridad: (nuevaPri && parseInt(nuevaPri) >= 1 && parseInt(nuevaPri) <= 3) ? parseInt(nuevaPri) - 1 : t.prioridad,
-                    fechaLimite: t.fechaLimite
-                };
+                    const body = {
+                        tipo: t.tipoTarea || 1,
+                        titulo: (nuevoTit && nuevoTit.trim()) ? nuevoTit.trim() : t.titulo,
+                        descripcion: nuevaDesc || t.descripcion || '',
+                        prioridad: (nuevaPri && parseInt(nuevaPri) >= 1 && parseInt(nuevaPri) <= 3) ? parseInt(nuevaPri) - 1 : t.prioridad,
+                        fechaLimite: t.fechaLimite
+                    };
 
-                try {
-                    const data = await apiFetch('/tareas/' + id, { method: 'PUT', body: JSON.stringify(body) });
-                    if (!data) return;
-                    mostrarOk('output-admin-gestion', 'Tarea actualizada exitosamente');
-                    setTimeout(() => adminGestionarUsuario(), 1000);
-                } catch (err) {
-                    mostrarError('output-admin-gestion', 'Error: ' + err.message);
+                    data = await apiFetch('/tareas/' + id, { method: 'PUT', body: JSON.stringify(body) });
+                    if (data) { mostrarOk('output-admin-gestion', 'Tarea actualizada exitosamente'); setTimeout(() => adminGestionarUsuario(), 1000); }
+                    break;
                 }
-                break;
-            }
-            case 2: {
-                const nuevoEstado = prompt('Nuevo estado: 1=Iniciar, 2=Completar, 3=Cancelar:', '2');
-                if (nuevoEstado === '3') {
-                    const motivo = prompt('Motivo de cancelacion:', '');
-                    try {
-                        const data = await apiFetch('/tareas/' + id + '/cancelar', {
-                            method: 'POST',
-                            body: JSON.stringify(motivo || 'Cancelado por admin')
-                        });
-                        if (!data) return;
-                        mostrarOk('output-admin-gestion', 'Estado actualizado');
-                    } catch (err) {
-                        mostrarError('output-admin-gestion', 'Error: ' + err.message);
-                    }
-                } else if (nuevoEstado === '2' || nuevoEstado === '1') {
-                    mostrarError('output-admin-gestion', 'La API solo permite cancelar. Use opcion 3.');
+                case 2:
+                    data = await apiFetch('/tareas/' + id + '/iniciar', { method: 'POST' });
+                    if (data) { mostrarOk('output-admin-gestion', 'Tarea iniciada correctamente'); setTimeout(() => adminGestionarUsuario(), 1000); }
+                    break;
+                case 3:
+                    data = await apiFetch('/tareas/' + id + '/completar', { method: 'POST' });
+                    if (data) { mostrarOk('output-admin-gestion', 'Tarea completada correctamente'); setTimeout(() => adminGestionarUsuario(), 1000); }
+                    break;
+                case 4: {
+                    const motivo = prompt('Motivo de cancelacion:', '') || 'Cancelado por admin';
+                    data = await apiFetch('/tareas/' + id + '/cancelar', { method: 'POST', body: JSON.stringify(motivo) });
+                    if (data) { mostrarOk('output-admin-gestion', 'Tarea cancelada'); setTimeout(() => adminGestionarUsuario(), 1000); }
+                    break;
                 }
-                setTimeout(() => adminGestionarUsuario(), 1000);
-                break;
+                case 5:
+                    if (!confirm('Eliminar tarea ' + t.titulo + ' permanentemente?')) return;
+                    data = await apiFetch('/tareas/' + id, { method: 'DELETE' });
+                    if (data !== null) { mostrarOk('output-admin-gestion', 'Tarea eliminada permanentemente'); setTimeout(() => adminGestionarUsuario(), 1000); }
+                    break;
             }
-            case 3: {
-                try {
-                    const data = await apiFetch('/tareas/' + id, { method: 'DELETE' });
-                    if (data === null) return;
-                    mostrarOk('output-admin-gestion', 'Tarea eliminada permanentemente');
-                    setTimeout(() => adminGestionarUsuario(), 1000);
-                } catch (err) {
-                    mostrarError('output-admin-gestion', 'Error: ' + err.message);
-                }
-                break;
-            }
+        } catch (err) {
+            mostrarError('output-admin-gestion', 'Error: ' + err.message);
         }
     });
 
@@ -1288,6 +1395,25 @@
     }
 
     $('btn-admin-stats-back').addEventListener('click', abrirMenu);
+
+    // ─── CONFIRMACION ───
+    $('btn-confirmar-si').addEventListener('click', function() {
+        if (window.__eliminarCallback) window.__eliminarCallback(true);
+        window.__eliminarCallback = null;
+    });
+    $('btn-confirmar-no').addEventListener('click', function() {
+        if (window.__eliminarCallback) window.__eliminarCallback(false);
+        window.__eliminarCallback = null;
+    });
+    setupEnterInput('input-confirmacion', function(valor) {
+        const v = valor.trim().toLowerCase();
+        if (v === 's' || v === 'si') {
+            if (window.__eliminarCallback) window.__eliminarCallback(true);
+        } else {
+            if (window.__eliminarCallback) window.__eliminarCallback(false);
+        }
+        window.__eliminarCallback = null;
+    });
 
     // ─── LOGOUT ───
     function logout() {
