@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GESTORTAREAS v1.0 - Terminal</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="app">
+
+    <!-- ============================================ -->
+    <!-- MENU DE INICIO (Login / Registro)           -->
+    <!-- ============================================ -->
+    <div id="win-inicio" class="ventana">
+        <div class="win-title">GESTORTAREAS v1.0 :: TERMINAL</div>
+        <div class="win-body">
+
+            <pre class="logo">
+ ██████  ███████ ███████ ████████  ██████  ██████
+██       ██      ██         ██    ██    ██ ██   ██
+██   ███ █████   ███████    ██    ██    ██ ██████
+██    ██ ██           ██    ██    ██    ██ ██   ██
+ ██████  ███████ ███████    ██     ██████  ██   ██
+</pre>
+
+            <div class="menu-box">
+                <div class="menu-option" data-action="login">  1. INICIAR SESION</div>
+                <div class="menu-option" data-action="register"> 2. CREAR USUARIO NUEVO</div>
+                <div class="menu-option" data-action="exit">   0. SALIR</div>
+            </div>
+
+            <div class="prompt-line">
+                <span class="prompt">GESTOR> </span>
+                <input type="text" id="input-inicio" class="cmd-input" placeholder="1, 2 o 0" autofocus>
+            </div>
+
+            <div id="output-inicio" class="output-area"></div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- LOGIN                                        -->
+    <!-- ============================================ -->
+    <div id="win-login" class="ventana oculta">
+        <div class="win-title">GESTORTAREAS :: INICIAR SESION</div>
+        <div class="win-body">
+
+            <div class="form-group">
+                <label>USUARIO</label>
+                <input type="text" id="login-user" class="cmd-input">
+            </div>
+            <div class="form-group">
+                <label>CONTRASENA</label>
+                <input type="password" id="login-pass" class="cmd-input">
+            </div>
+
+            <div class="form-actions">
+                <button id="btn-login" class="cmd-btn">[ ENTRAR ]</button>
+                <button id="btn-login-back" class="cmd-btn cmd-btn-dim">[ VOLVER ]</button>
+            </div>
+
+            <div id="output-login" class="output-area"></div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- REGISTRO                                     -->
+    <!-- ============================================ -->
+    <div id="win-register" class="ventana oculta">
+        <div class="win-title">GESTORTAREAS :: CREAR USUARIO</div>
+        <div class="win-body">
+
+            <div class="form-group">
+                <label>NOMBRE DE USUARIO</label>
+                <input type="text" id="reg-user" class="cmd-input">
+            </div>
+            <div class="form-group">
+                <label>CONTRASENA</label>
+                <input type="password" id="reg-pass" class="cmd-input">
+            </div>
+
+            <div class="form-actions">
+                <button id="btn-register" class="cmd-btn">[ CREAR ]</button>
+                <button id="btn-register-back" class="cmd-btn cmd-btn-dim">[ VOLVER ]</button>
+            </div>
+
+            <div id="output-register" class="output-area"></div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- MENU PRINCIPAL (post-login)                  -->
+    <!-- ============================================ -->
+    <div id="win-menu" class="ventana oculta">
+        <div class="win-title" id="menu-title">GESTORTAREAS :: USUARIO: ADMIN (admin)</div>
+        <div class="win-body">
+
+            <div class="menu-box" id="menu-options">
+                <div class="menu-option" data-action="agregar">  1. AGREGAR NUEVA TAREA</div>
+                <div class="menu-option" data-action="listar">   2. LISTAR MIS TAREAS</div>
+                <div class="menu-option" data-action="editar">   3. EDITAR / CAMBIAR ESTADO</div>
+                <div class="menu-option" data-action="cancelar"> 4. CANCELAR UNA TAREA</div>
+                <div class="menu-option" data-action="mystats">  5. VER MIS ESTADISTICAS</div>
+                <div class="menu-option admin-only" data-action="admin-todas">   6. [ADMIN] VER TODAS LAS TAREAS</div>
+                <div class="menu-option admin-only" data-action="admin-gestion">  7. [ADMIN] GESTIONAR USUARIO</div>
+                <div class="menu-option admin-only" data-action="admin-stats">    8. [ADMIN] ESTADISTICAS GLOBALES</div>
+                <div class="menu-option" data-action="logout">   6. CERRAR SESION</div>
+            </div>
+
+            <div class="prompt-line">
+                <span class="prompt" id="menu-prompt">GESTOR> </span>
+                <input type="text" id="input-menu" class="cmd-input" placeholder="1-9 o 0">
+            </div>
+
+            <div id="output-menu" class="output-area"></div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- AGREGAR TAREA                                -->
+    <!-- ============================================ -->
+    <div id="win-agregar" class="ventana oculta">
+        <div class="win-title">GESTORTAREAS :: AGREGAR TAREA</div>
+        <div class="win-body">
+
+            <div class="output-area">
+                <div class="line">TIPOS DE TAREA:</div>
+                <div class="line">  1. TAREA SIMPLE</div>
+                <div class="line">  2. TAREA RECURRENTE</div>
+                <div class="line">  3. TAREA URGENTE</div>
+            </div>
+
+            <div id="agregar-tipo-section">
+                <div class="prompt-line">
+                    <span class="prompt">TIPO> </span>
+                    <input type="text" id="input-agregar-tipo" class="cmd-input" placeholder="1, 2 o 3">
+                </div>
+            </div>
+
+            <div id="agregar-form" class="oculta">
+                <div class="form-group"><label>TITULO</label><input type="text" id="agr-titulo" class="cmd-input"></div>
+                <div class="form-group"><label>DESCRIPCION</label><input type="text" id="agr-desc" class="cmd-input"></div>
+                <div class="form-group"><label>PRIORIDAD (1=BAJA, 2=MEDIA, 3=ALTA)</label><input type="text" id="agr-prioridad" class="cmd-input"></div>
+                <div class="form-group" id="agr-fecha-group"><label>FECHA LIMITE (YYYY-MM-DD)</label><input type="text" id="agr-fecha" class="cmd-input" placeholder="2026-05-20"></div>
+                <div class="form-group oculta" id="agr-intervalo-group"><label>INTERVALO EN DIAS</label><input type="text" id="agr-intervalo" class="cmd-input"></div>
+                <div class="form-group oculta" id="agr-responsable-group"><label>RESPONSABLE</label><input type="text" id="agr-responsable" class="cmd-input"></div>
+                <div class="form-actions">
+                    <button id="btn-agregar-guardar" class="cmd-btn">[ GUARDAR ]</button>
+                    <button id="btn-agregar-cancel" class="cmd-btn cmd-btn-dim">[ CANCELAR ]</button>
+                </div>
+            </div>
+
+            <div class="form-actions" id="agregar-volver-actions">
+                <button id="btn-agregar-back" class="cmd-btn cmd-btn-dim">[ VOLVER AL MENU ]</button>
+            </div>
+
+            <div id="output-agregar" class="output-area"></div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- LISTAR TAREAS (con cards + botones rápidos)  -->
+    <!-- ============================================ -->
+    <div id="win-listar" class="ventana oculta">
+        <div class="win-title" id="listar-title">GESTORTAREAS :: MIS TAREAS</div>
+        <div class="win-body">
+            <div class="toolbar">
+                <button id="btn-listar-back" class="cmd-btn cmd-btn-dim">[ VOLVER AL MENU ]</button>
+                <span class="toolbar-counter" id="listar-counter"></span>
+            </div>
+            <div id="output-listar" class="output-area"></div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- EDITAR TAREA                                 -->
+    <!-- ============================================ -->
+    <div id="win-editar" class="ventana oculta">
+        <div class="win-title">GESTORTAREAS :: EDITAR / CAMBIAR ESTADO</div>
+        <div class="win-body">
+
+            <div id="editar-paso1">
+                <div id="output-editar-lista" class="output-area"></div>
+                <div class="prompt-line">
+                    <span class="prompt">SELECCIONE #> </span>
+                    <input type="text" id="input-editar-sel" class="cmd-input" placeholder="numero de tarea">
+                </div>
+            </div>
+
+            <div id="editar-paso2" class="oculta">
+                <div class="output-area">
+                    <div class="line">--- ACCIONES ---</div>
+                    <div class="line">  1. EDITAR DATOS (TITULO, DESCRIPCION, PRIORIDAD...)</div>
+                    <div class="line">  2. CAMBIAR ESTADO</div>
+                    <div class="line">  0. VOLVER</div>
+                </div>
+                <div class="prompt-line">
+                    <span class="prompt">ACCION> </span>
+                    <input type="text" id="input-editar-accion" class="cmd-input" placeholder="1, 2 o 0">
+                </div>
+            </div>
+
+            <div id="editar-paso3-datos" class="oculta">
+                <div class="output-area" id="output-editar-datos-ant"></div>
+                <div class="form-group"><label>NUEVO TITULO (ENTER = SIN CAMBIOS)</label><input type="text" id="edt-titulo" class="cmd-input"></div>
+                <div class="form-group"><label>NUEVA DESCRIPCION (ENTER = SIN CAMBIOS)</label><input type="text" id="edt-desc" class="cmd-input"></div>
+                <div class="form-group"><label>NUEVA PRIORIDAD (1=BAJA,2=MEDIA,3=ALTA) (ENTER = SIN CAMBIOS)</label><input type="text" id="edt-prioridad" class="cmd-input"></div>
+                <div class="form-group oculta" id="edt-intervalo-group"><label>NUEVO INTERVALO EN DIAS (ENTER = SIN CAMBIOS)</label><input type="text" id="edt-intervalo" class="cmd-input"></div>
+                <div class="form-group oculta" id="edt-responsable-group"><label>NUEVO RESPONSABLE (ENTER = SIN CAMBIOS)</label><input type="text" id="edt-responsable" class="cmd-input"></div>
+                <div class="form-actions">
+                    <button id="btn-editar-guardar" class="cmd-btn">[ GUARDAR CAMBIOS ]</button>
+                    <button id="btn-editar-cancel" class="cmd-btn cmd-btn-dim">[ CANCELAR ]</button>
+                </div>
+            </div>
+
+            <div id="editar-paso3-estado" class="oculta">
+                <div class="output-area">
+                    <div class="line" id="editar-estado-label">ESTADO ACTUAL: PENDIENTE</div>
+                    <div class="line">  1. INICIAR (PENDIENTE → EN PROGRESO)</div>
+                    <div class="line">  2. COMPLETAR</div>
+                    <div class="line">  3. CANCELAR</div>
+                </div>
+                <div class="prompt-line">
+                    <span class="prompt">ESTADO> </span>
+                    <input type="text" id="input-editar-estado" class="cmd-input" placeholder="1, 2 o 3">
+                </div>
+                <div class="form-group oculta" id="editar-motivo-group">
+                    <label>MOTIVO DE CANCELACION</label>
+                    <input type="text" id="editar-motivo" class="cmd-input">
+                    <button id="btn-editar-confirmar-cancel" class="cmd-btn">[ CONFIRMAR CANCELACION ]</button>
+                </div>
+            </div>
+
+            <div class="form-actions" id="editar-volver-actions">
+                <button id="btn-editar-back-menu" class="cmd-btn cmd-btn-dim">[ VOLVER AL MENU ]</button>
+            </div>
+
+            <div id="output-editar" class="output-area"></div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- CANCELAR TAREA                               -->
+    <!-- ============================================ -->
+    <div id="win-cancelar" class="ventana oculta">
+        <div class="win-title">GESTORTAREAS :: CANCELAR TAREA</div>
+        <div class="win-body">
+            <div id="output-cancelar-lista" class="output-area"></div>
+            <div class="prompt-line">
+                <span class="prompt">CANCELAR #> </span>
+                <input type="text" id="input-cancelar-sel" class="cmd-input" placeholder="numero de tarea">
+            </div>
+            <div class="form-group oculta" id="cancelar-motivo-group">
+                <label>MOTIVO DE CANCELACION</label>
+                <input type="text" id="cancelar-motivo" class="cmd-input">
+                <button id="btn-cancelar-confirmar" class="cmd-btn">[ CONFIRMAR CANCELACION ]</button>
+            </div>
+            <button id="btn-cancelar-back" class="cmd-btn cmd-btn-dim">[ VOLVER AL MENU ]</button>
+            <div id="output-cancelar" class="output-area"></div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ESTADISTICAS (mis stats)                     -->
+    <!-- ============================================ -->
+    <div id="win-stats" class="ventana oculta">
+        <div class="win-title">GESTORTAREAS :: MIS ESTADISTICAS</div>
+        <div class="win-body">
+            <div id="output-stats" class="output-area"></div>
+            <button id="btn-stats-back" class="cmd-btn cmd-btn-dim">[ VOLVER AL MENU ]</button>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ADMIN: VER TODAS LAS TAREAS                 -->
+    <!-- ============================================ -->
+    <div id="win-admin-todas" class="ventana oculta">
+        <div class="win-title">GESTORTAREAS :: TODAS LAS TAREAS (ADMIN)</div>
+        <div class="win-body">
+            <div class="toolbar">
+                <button id="btn-admin-todas-back" class="cmd-btn cmd-btn-dim">[ VOLVER AL MENU ]</button>
+                <span class="toolbar-counter" id="admin-todas-counter"></span>
+            </div>
+            <div id="output-admin-todas" class="output-area"></div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ADMIN: GESTIONAR USUARIO                    -->
+    <!-- ============================================ -->
+    <div id="win-admin-gestion" class="ventana oculta">
+        <div class="win-title">GESTORTAREAS :: GESTIONAR USUARIO (ADMIN)</div>
+        <div class="win-body">
+
+            <div id="admin-gestion-paso1">
+                <div id="output-admin-gestion-lista" class="output-area"></div>
+                <div class="prompt-line">
+                    <span class="prompt">SELECCIONE USUARIO #> </span>
+                    <input type="text" id="input-admin-gestion-sel" class="cmd-input" placeholder="numero de usuario">
+                </div>
+            </div>
+
+            <div id="admin-gestion-paso2" class="oculta">
+                <div id="output-admin-gestion-tareas" class="output-area"></div>
+                <div class="output-area">
+                    <div class="line">--- ACCIONES ---</div>
+                    <div class="line">  1. EDITAR DATOS DE UNA TAREA</div>
+                    <div class="line">  2. CAMBIAR ESTADO DE UNA TAREA</div>
+                    <div class="line">  3. ELIMINAR TAREA (BORRADO COMPLETO)</div>
+                    <div class="line">  0. VOLVER</div>
+                </div>
+                <div class="prompt-line">
+                    <span class="prompt">ACCION> </span>
+                    <input type="text" id="input-admin-gestion-accion" class="cmd-input" placeholder="1, 2, 3 o 0">
+                </div>
+                <div id="admin-gestion-seltarea" class="oculta">
+                    <div class="prompt-line">
+                        <span class="prompt">SELECCIONE TAREA #> </span>
+                        <input type="text" id="input-admin-gestion-tarea" class="cmd-input" placeholder="numero de tarea">
+                    </div>
+                </div>
+            </div>
+
+            <button id="btn-admin-gestion-back" class="cmd-btn cmd-btn-dim">[ VOLVER AL MENU ]</button>
+            <div id="output-admin-gestion" class="output-area"></div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ADMIN: ESTADISTICAS GLOBALES                -->
+    <!-- ============================================ -->
+    <div id="win-admin-stats" class="ventana oculta">
+        <div class="win-title">GESTORTAREAS :: ESTADISTICAS GLOBALES (ADMIN)</div>
+        <div class="win-body">
+            <div id="output-admin-stats" class="output-area"></div>
+            <button id="btn-admin-stats-back" class="cmd-btn cmd-btn-dim">[ VOLVER AL MENU ]</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+(function() {
+
+    // ─── CONFIG ───
+    const API = window.location.origin + '/api';
+
+    let currentUser = null;        // { id, nombre, rol, token, expiraEn }
+    let tareasCache = [];          // Último listado de tareas obtenidas
+    let editandoTarea = null;
+    let editandoIdx = -1;
+
+    // Helpers
+    const $ = id => document.getElementById(id);
+
+    function ocultarTodas() {
+        document.querySelectorAll('.ventana').forEach(v => v.classList.add('oculta'));
+    }
+
+    function mostrar(id) {
+        ocultarTodas();
+        $(id).classList.remove('oculta');
+        const inp = $(id).querySelector('.cmd-input');
+        if (inp) setTimeout(() => inp.focus(), 50);
+    }
+
+    function output(where, html) {
+        $(where).innerHTML += html;
+    }
+
+    function outputLn(where, text, cls) {
+        $(where).innerHTML += `<div class="line ${cls || ''}">${text}</div>`;
+    }
+
+    function clearOutput(where) {
+        $(where).innerHTML = '';
+    }
+
+    function mostrarError(where, msg) {
+        outputLn(where, '✗ ' + msg, 'line-error');
+    }
+
+    function mostrarOk(where, msg) {
+        outputLn(where, '✓ ' + msg, 'line-ok');
+    }
+
+    function prioridadStr(p) {
+        if (typeof p === 'number') { const map = { 0: 'Baja', 1: 'Media', 2: 'Alta' }; return map[p] || 'Desconocida'; }
+        return p;
+    }
+
+    function estadoStr(e) {
+        if (typeof e === 'number') { const map = { 0: 'Pendiente', 1: 'EnProgreso', 2: 'Completada', 3: 'Cancelada' }; return map[e] || 'Desconocido'; }
+        return e;
+    }
+
+    function tipoStr(t) {
+        if (t.tipoTarea !== undefined && t.tipoTarea !== null) {
+            const map = { 1: 'Simple', 2: 'Recurrente', 3: 'Urgente' };
+            return map[t.tipoTarea] || 'Desconocido';
+        }
+        // inferir por propiedades
+        if (t.intervaloEnDias) return 'Recurrente';
+        if (t.responsable) return 'Urgente';
+        return 'Simple';
+    }
+
+    function formatearTarea(t, idx, conDetallesAdmin) {
+        const id = t.id || t.tareaId;
+        let s = '';
+        if (idx) s += `<div class="line line-bold">[${idx}] ${t.titulo}</div>`;
+        else s += `<div class="line line-bold">${t.titulo}</div>`;
+        s += `<div class="line">   Estado: ${estadoStr(t.estado)}</div>`;
+        s += `<div class="line">   Descripcion: ${t.descripcion || '(sin descripcion)'}</div>`;
+        const fl = t.fechaLimite ? (typeof t.fechaLimite === 'string' ? t.fechaLimite.substring(0, 10) : new Date(t.fechaLimite).toLocaleDateString()) : '';
+        s += `<div class="line">   Fecha limite: ${fl}</div>`;
+        s += `<div class="line">   Prioridad: ${prioridadStr(t.prioridad)}</div>`;
+        const fc = t.fechaCreacion ? (typeof t.fechaCreacion === 'string' ? t.fechaCreacion.substring(0, 16) : new Date(t.fechaCreacion).toLocaleString()) : '';
+        s += `<div class="line">   Creada: ${fc}</div>`;
+        s += `<div class="line">   Tipo: ${tipoStr(t)}</div>`;
+        if (t.intervaloEnDias) s += `<div class="line">   Intervalo: cada ${t.intervaloEnDias} dias</div>`;
+        if (t.responsable) s += `<div class="line">   Responsable: ${t.responsable}</div>`;
+        if (t.motivoCancelacion) s += `<div class="line line-warn">   Motivo cancelacion: ${t.motivoCancelacion}</div>`;
+        if (t.estaVencida) s += `<div class="line line-error">   ! VENCIDA</div>`;
+
+        if (conDetallesAdmin) {
+            s += `<div class="line line-dim">   ID: ${id}</div>`;
+            s += `<div class="line line-dim">   UsuarioId: ${t.usuarioId || 'N/D'}</div>`;
+            s += `<div class="line line-dim">   Usuario: ${t.usuario?.nombre || t.usuarioNombre || 'N/D'}</div>`;
+        }
+
+        // Botones de acción rápida (quality of life)
+        if (t.estado === 0 || t.estado === 'Pendiente') {
+            s += `<div class="line">   <button class="cmd-btn cmd-btn-xs cmd-action-completar" data-id="${id}">[ COMPLETAR ]</button>`
+               + ` <button class="cmd-btn cmd-btn-xs cmd-btn-danger cmd-action-eliminar" data-id="${id}">[ ELIMINAR ]</button></div>`;
+        } else if (t.estado === 1 || t.estado === 'EnProgreso') {
+            s += `<div class="line">   <button class="cmd-btn cmd-btn-xs cmd-action-completar" data-id="${id}">[ COMPLETAR ]</button>`
+               + ` <button class="cmd-btn cmd-btn-xs cmd-btn-danger cmd-action-eliminar" data-id="${id}">[ ELIMINAR ]</button></div>`;
+        } else {
+            s += `<div class="line">   <button class="cmd-btn cmd-btn-xs cmd-btn-danger cmd-action-eliminar" data-id="${id}">[ ELIMINAR ]</button></div>`;
+        }
+
+        s += '<div class="line"> </div>';
+        return s;
+    }
+
+    // ─── API CALLS ───
+    async function apiFetch(url, options = {}) {
+        const headers = { 'Content-Type': 'application/json' };
+        if (currentUser?.token) {
+            headers['Authorization'] = 'Bearer ' + currentUser.token;
+        }
+
+        const res = await fetch(API + url, { ...options, headers });
+
+        if (res.status === 401) {
+            mostrarError('output-menu', 'Sesion expirada. Vuelva a iniciar sesion.');
+            setTimeout(logout, 1500);
+            return null;
+        }
+
+        if (res.status === 403) {
+            mostrarError('output-menu', 'Acceso denegado.');
+            return null;
+        }
+
+        // 204 No Content
+        if (res.status === 204) return { success: true };
+
+        const text = await res.text();
+        if (!text) return res.ok ? { success: true } : null;
+
+        try { return JSON.parse(text); }
+        catch { return text; }
+    }
+
+    // ─── LOGIN ───
+    function abrirLogin() {
+        mostrar('win-login');
+        clearOutput('output-login');
+        $('login-user').value = '';
+        $('login-pass').value = '';
+        $('login-user').focus();
+    }
+
+    $('btn-login').addEventListener('click', async function() {
+        const nombre = $('login-user').value.trim();
+        const password = $('login-pass').value.trim();
+
+        if (!nombre || !password) {
+            mostrarError('output-login', 'Usuario y contraseña obligatorios');
+            return;
+        }
+
+        try {
+            const data = await apiFetch('/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({ nombre, password })
+            });
+
+            if (!data || data.token === undefined) {
+                mostrarError('output-login', 'Usuario o contraseña incorrectos');
+                return;
+            }
+
+            currentUser = {
+                id: data.id,
+                nombre: data.nombre,
+                rol: data.rol,
+                token: data.token,
+                expiraEn: data.expiraEn
+            };
+
+            abrirMenu();
+        } catch (err) {
+            mostrarError('output-login', 'Error de conexion: ' + err.message);
+        }
+    });
+
+    $('btn-login-back').addEventListener('click', mostrarInicio);
+
+    setupEnterInput('login-user', () => $('login-pass').focus());
+    setupEnterInput('login-pass', () => $('btn-login').click());
+
+    // ─── REGISTER ───
+    function abrirRegister() {
+        mostrar('win-register');
+        clearOutput('output-register');
+        $('reg-user').value = '';
+        $('reg-pass').value = '';
+        $('reg-user').focus();
+    }
+
+    $('btn-register').addEventListener('click', async function() {
+        const nombre = $('reg-user').value.trim();
+        const password = $('reg-pass').value.trim();
+
+        if (!nombre || !password) {
+            mostrarError('output-register', 'Nombre y contraseña obligatorios');
+            return;
+        }
+
+        try {
+            const data = await apiFetch('/auth/register', {
+                method: 'POST',
+                body: JSON.stringify({ nombre, password })
+            });
+
+            if (!data || data.token === undefined) {
+                mostrarError('output-register', 'El nombre de usuario ya existe');
+                return;
+            }
+
+            mostrarOk('output-register', `Usuario '${nombre}' creado correctamente`);
+            $('reg-user').value = '';
+            $('reg-pass').value = '';
+        } catch (err) {
+            mostrarError('output-register', 'Error: ' + err.message);
+        }
+    });
+
+    $('btn-register-back').addEventListener('click', mostrarInicio);
+    setupEnterInput('reg-user', () => $('reg-pass').focus());
+    setupEnterInput('reg-pass', () => $('btn-register').click());
+
+    // ─── MENU PRINCIPAL ───
+    function abrirMenu() {
+        $('menu-title').textContent = `GESTORTAREAS :: USUARIO: ${currentUser.nombre.toUpperCase()} (${currentUser.rol})`;
+        $('menu-prompt').textContent = `${currentUser.nombre.toUpperCase()}> `;
+
+        const esAdmin = currentUser.rol === 'admin';
+        document.querySelectorAll('.admin-only').forEach(el => {
+            el.style.display = esAdmin ? '' : 'none';
+        });
+
+        const logoutOpt = document.querySelector('.menu-option[data-action="logout"]');
+        if (logoutOpt) logoutOpt.textContent = esAdmin ? '  9. CERRAR SESION' : '  6. CERRAR SESION';
+
+        mostrar('win-menu');
+        clearOutput('output-menu');
+        $('input-menu').focus();
+    }
+
+    setupEnterInput('input-menu', function(valor) {
+        const v = valor.trim();
+        const esAdmin = currentUser?.rol === 'admin';
+
+        if (v === '1') abrirAgregar();
+        else if (v === '2') listarMisTareas();
+        else if (v === '3') abrirEditar();
+        else if (v === '4') abrirCancelar();
+        else if (v === '5') mostrarMisStats();
+        else if (v === '6' && !esAdmin) logout();
+        else if (v === '6' && esAdmin) adminVerTodas();
+        else if (v === '7' && esAdmin) adminGestionarUsuario();
+        else if (v === '8' && esAdmin) adminStats();
+        else if (v === '9' && esAdmin) logout();
+        else mostrarError('output-menu', 'Opcion no valida');
+    });
+
+    document.querySelectorAll('[data-action]').forEach(el => {
+        el.addEventListener('click', function() {
+            const action = this.dataset.action;
+            if (action === 'login') abrirLogin();
+            else if (action === 'register') abrirRegister();
+            else if (action === 'exit') { outputLn('output-inicio', '¡Hasta luego!'); }
+            else if (action === 'agregar') abrirAgregar();
+            else if (action === 'listar') listarMisTareas();
+            else if (action === 'editar') abrirEditar();
+            else if (action === 'cancelar') abrirCancelar();
+            else if (action === 'mystats') mostrarMisStats();
+            else if (action === 'admin-todas') adminVerTodas();
+            else if (action === 'admin-gestion') adminGestionarUsuario();
+            else if (action === 'admin-stats') adminStats();
+            else if (action === 'logout') logout();
+        });
+    });
+
+    // ─── AGREGAR TAREA ───
+    let agregarTipo = 0;
+
+    function abrirAgregar() {
+        agregarTipo = 0;
+        mostrar('win-agregar');
+        clearOutput('output-agregar');
+        $('agregar-tipo-section').classList.remove('oculta');
+        $('agregar-form').classList.add('oculta');
+        camposAgregarReset();
+        $('input-agregar-tipo').focus();
+    }
+
+    function camposAgregarReset() {
+        ['agr-titulo','agr-desc','agr-prioridad','agr-fecha','agr-intervalo','agr-responsable'].forEach(id => $(id).value = '');
+        $('agr-intervalo-group').classList.add('oculta');
+        $('agr-responsable-group').classList.add('oculta');
+    }
+
+    setupEnterInput('input-agregar-tipo', function(valor) {
+        const v = valor.trim();
+        if (v !== '1' && v !== '2' && v !== '3') {
+            mostrarError('output-agregar', 'Tipo no valido (1, 2 o 3)');
+            return;
+        }
+
+        agregarTipo = parseInt(v);
+        $('agregar-tipo-section').classList.add('oculta');
+        $('agregar-form').classList.remove('oculta');
+        if (agregarTipo === 2) $('agr-intervalo-group').classList.remove('oculta');
+        if (agregarTipo === 3) $('agr-responsable-group').classList.remove('oculta');
+        $('agr-titulo').focus();
+    });
+
+    $('btn-agregar-guardar').addEventListener('click', async function() {
+        const titulo = $('agr-titulo').value.trim();
+        if (!titulo) { mostrarError('output-agregar', 'Titulo obligatorio'); return; }
+
+        const descripcion = $('agr-desc').value.trim();
+        const prioridadInput = $('agr-prioridad').value.trim();
+        const prioridadIdx = parseInt(prioridadInput);
+        if (!prioridadInput || isNaN(prioridadIdx) || prioridadIdx < 1 || prioridadIdx > 3) {
+            mostrarError('output-agregar', 'Prioridad no valida (1,2,3)'); return;
+        }
+        const prioridad = prioridadIdx - 1;
+
+        const fechaStr = $('agr-fecha').value.trim();
+        if (!fechaStr) { mostrarError('output-agregar', 'Fecha limite obligatoria'); return; }
+        const fechaLimite = new Date(fechaStr + 'T23:59:59').toISOString();
+
+        const body = {
+            tipo: agregarTipo,
+            titulo,
+            descripcion,
+            prioridad,
+            fechaLimite
+        };
+
+        if (agregarTipo === 2) {
+            const intervalo = parseInt($('agr-intervalo').value.trim());
+            if (!intervalo || intervalo <= 0) { mostrarError('output-agregar', 'Intervalo invalido'); return; }
+            body.intervaloEnDias = intervalo;
+        } else if (agregarTipo === 3) {
+            const responsable = $('agr-responsable').value.trim();
+            if (!responsable) { mostrarError('output-agregar', 'Responsable obligatorio'); return; }
+            body.responsable = responsable;
+        }
+
+        try {
+            const data = await apiFetch('/tareas', {
+                method: 'POST',
+                body: JSON.stringify(body)
+            });
+
+            if (!data) return;
+
+            mostrarOk('output-agregar', 'Tarea agregada correctamente');
+            camposAgregarReset();
+        } catch (err) {
+            mostrarError('output-agregar', 'Error: ' + err.message);
+        }
+    });
+
+    $('btn-agregar-cancel').addEventListener('click', abrirAgregar);
+    $('btn-agregar-back').addEventListener('click', abrirMenu);
+
+    // ─── LISTAR TAREAS (desde API) ───
+    async function listarTareas(where, titleId, counterId, conAdmin, backBtn) {
+        try {
+            const data = await apiFetch('/tareas?pagina=1&porPagina=100');
+            if (!data) return;
+
+            const tareas = data.datos || data.items || data;
+            tareasCache = tareas;
+
+            mostrar('win-listar');
+            if (titleId) $(titleId).textContent = conAdmin ? 'TODAS LAS TAREAS (ADMIN)' : 'MIS TAREAS';
+            if (counterId) $(counterId).textContent = 'TOTAL: ' + tareas.length;
+            clearOutput(where);
+
+            if (tareas.length === 0) {
+                outputLn(where, 'No hay tareas para mostrar.');
+                return;
+            }
+
+            outputLn(where, conAdmin ? '=== TODAS LAS TAREAS DEL SISTEMA ===' : '=== MIS TAREAS ===', 'line-title');
+            outputLn(where, '');
+
+            tareas.forEach((t, i) => {
+                output(where, formatearTarea(t, i + 1, conAdmin));
+            });
+        } catch (err) {
+            mostrarError(where, 'Error al cargar tareas: ' + err.message);
+        }
+    }
+
+    async function listarMisTareas() {
+        await listarTareas('output-listar', 'listar-title', 'listar-counter', false, 'btn-listar-back');
+    }
+
+    $('btn-listar-back').addEventListener('click', abrirMenu);
+
+    // ─── ACCIONES RAPIDAS (delegación en outputs) ───
+    document.addEventListener('click', async function(e) {
+        // Completar rápido
+        const btnCompletar = e.target.closest('.cmd-action-completar');
+        if (btnCompletar) {
+            const id = btnCompletar.dataset.id;
+            try {
+                // Cambiar estado a Completada (2) vía cancelar con motivo vacío? No, mejor usamos PUT para editar estado
+                // La API no tiene endpoint directo para completar, así que hacemos un POST a cancelar no sirve.
+                // Buscamos la tarea y llamamos a POST /api/tareas/{id}/cancelar no es correcto.
+                // La API tiene PUT /api/tareas/{id} que edita. No permite cambiar estado.
+                // La opción más limpia: obtener tarea y luego llamar a cancelar no es lo mismo.
+                // Usamos el endpoint de estado: no existe específico para completar.
+                // Lo mejor: hacemos fetch a la tarea, la editamos.
+
+                // Estrategia: obtener la tarea, luego PUT con los mismos datos pero reflejando completada
+                // No tenemos endpoint para cambiar estado directamente. Entonces mejor usar el flujo normal de editar.
+                // Para acción rápida: haremos POST a cancelar no es correcto. Mejor:
+
+                // Opción viable: llamamos a PUT /api/tareas/{id} con el dto actual pero no cambia estado.
+                // No hay endpoint. Entonces redirigimos al menú de editar con esa tarea preseleccionada.
+
+                // Lo más práctico: mostrar mensaje y usar el flujo normal.
+                mostrarError('output-menu', 'Use opcion 3 (Editar/Cambiar estado) para cambiar estado');
+            } catch (err) {
+                mostrarError('output-menu', 'Error: ' + err.message);
+            }
+            return;
+        }
+
+        // Eliminar rápido
+        const btnEliminar = e.target.closest('.cmd-action-eliminar');
+        if (btnEliminar) {
+            const id = btnEliminar.dataset.id;
+            if (!confirm('Eliminar tarea ' + id + '?')) return;
+
+            try {
+                await apiFetch('/tareas/' + id, { method: 'DELETE' });
+                mostrarOk('output-menu', 'Tarea eliminada permanentemente');
+
+                // Recargar la vista actual
+                const visibles = document.querySelectorAll('.ventana:not(.oculta)');
+                for (const v of visibles) {
+                    if (v.id === 'win-listar') { await listarMisTareas(); break; }
+                    if (v.id === 'win-admin-todas') { await adminVerTodas(); break; }
+                }
+            } catch (err) {
+                mostrarError('output-menu', 'Error al eliminar: ' + err.message);
+            }
+            return;
+        }
+    });
+
+    // ─── EDITAR ───
+    function abrirEditar() {
+        editandoIdx = -1;
+        editandoTarea = null;
+        mostrar('win-editar');
+        clearOutput('output-editar');
+        $('editar-paso1').classList.remove('oculta');
+        $('editar-paso2').classList.add('oculta');
+        $('editar-paso3-datos').classList.add('oculta');
+        $('editar-paso3-estado').classList.add('oculta');
+        $('editar-motivo-group').classList.add('oculta');
+
+        // Cargar mis tareas desde API
+        apiFetch('/tareas?pagina=1&porPagina=100').then(data => {
+            const tareas = data.datos || data.items || data || [];
+            tareasCache = tareas;
+
+            if (tareas.length === 0) {
+                outputLn('output-editar', 'No hay tareas registradas.');
+                return;
+            }
+
+            let html = '<div class="line line-title">=== EDITAR / CAMBIAR ESTADO ===</div><div class="line"> </div>';
+            tareas.forEach((t, i) => {
+                html += formatearTarea(t, i + 1, false);
+            });
+            $('output-editar-lista').innerHTML = html;
+            $('input-editar-sel').focus();
+        }).catch(err => {
+            mostrarError('output-editar', 'Error: ' + err.message);
+        });
+    }
+
+    setupEnterInput('input-editar-sel', function(valor) {
+        const idx = parseInt(valor.trim());
+        if (isNaN(idx) || idx < 1 || idx > tareasCache.length) {
+            mostrarError('output-editar', 'Seleccion no valida');
+            return;
+        }
+        editandoIdx = idx - 1;
+        editandoTarea = tareasCache[editandoIdx];
+
+        $('editar-paso1').classList.add('oculta');
+        $('editar-paso2').classList.remove('oculta');
+        $('input-editar-accion').focus();
+    });
+
+    setupEnterInput('input-editar-accion', function(valor) {
+        const v = valor.trim();
+        if (v === '0') { abrirEditar(); return; }
+        if (v === '1') {
+            $('editar-paso2').classList.add('oculta');
+            $('editar-paso3-datos').classList.remove('oculta');
+            const t = editandoTarea;
+            $('output-editar-datos-ant').innerHTML = `<div class="line line-title">=== EDITANDO: ${t.titulo} ===</div><div class="line"> </div>`;
+            ['edt-titulo','edt-desc','edt-prioridad','edt-intervalo','edt-responsable'].forEach(id => $(id).value = '');
+            $('edt-intervalo-group').classList.add('oculta');
+            $('edt-responsable-group').classList.add('oculta');
+            if (t.intervaloEnDias) $('edt-intervalo-group').classList.remove('oculta');
+            if (t.responsable) $('edt-responsable-group').classList.remove('oculta');
+            $('edt-titulo').focus();
+        } else if (v === '2') {
+            $('editar-paso2').classList.add('oculta');
+            $('editar-paso3-estado').classList.remove('oculta');
+            $('editar-motivo-group').classList.add('oculta');
+            $('editar-estado-label').textContent = `ESTADO ACTUAL: ${estadoStr(editandoTarea.estado)}`;
+            $('input-editar-estado').focus();
+        } else {
+            mostrarError('output-editar', 'Opcion no valida');
+        }
+    });
+
+    $('btn-editar-guardar').addEventListener('click', async function() {
+        const t = editandoTarea;
+        const id = t.id || t.tareaId;
+
+        const nuevoTit = $('edt-titulo').value.trim() || t.titulo;
+        const nuevaDesc = $('edt-desc').value.trim() || t.descripcion || '';
+        const nuevaPri = $('edt-prioridad').value.trim();
+        let prioridad = t.prioridad;
+        if (nuevaPri) {
+            const p = parseInt(nuevaPri);
+            if (p >= 1 && p <= 3) prioridad = p - 1;
+        }
+
+        const body = {
+            tipo: t.tipoTarea || 1,
+            titulo: nuevoTit,
+            descripcion: nuevaDesc,
+            prioridad: prioridad,
+            fechaLimite: t.fechaLimite
+        };
+
+        if (t.intervaloEnDias) {
+            const ni = $('edt-intervalo').value.trim();
+            body.intervaloEnDias = ni ? parseInt(ni) : t.intervaloEnDias;
+        }
+        if (t.responsable) {
+            const nr = $('edt-responsable').value.trim();
+            body.responsable = nr || t.responsable;
+        }
+
+        try {
+            const data = await apiFetch('/tareas/' + id, {
+                method: 'PUT',
+                body: JSON.stringify(body)
+            });
+            if (!data) return;
+            mostrarOk('output-editar', 'Tarea actualizada exitosamente');
+            setTimeout(() => abrirEditar(), 800);
+        } catch (err) {
+            mostrarError('output-editar', 'Error: ' + err.message);
+        }
+    });
+
+    $('btn-editar-cancel').addEventListener('click', abrirEditar);
+
+    setupEnterInput('input-editar-estado', async function(valor) {
+        const v = valor.trim();
+        const t = editandoTarea;
+        const id = t.id || t.tareaId;
+
+        if (v === '1') {
+            if (t.estado !== 0) { mostrarError('output-editar', 'Solo se puede iniciar desde Pendiente'); return; }
+            // No hay endpoint para iniciar. Usamos cancelar? No. Hacemos PUT con el mismo body no cambia estado.
+            // No tenemos forma directa. Mejor indicar que use el flujo de cancelar.
+            mostrarError('output-editar', 'Use opcion 3 Cancelar o Completar (2)');
+        } else if (v === '2') {
+            // Completar: no hay endpoint directo. Usamos PUT pero no cambia estado.
+            // Alternativa: POST a cancelar con motivo vacío? No.
+            // Lo siento, la API no permite cambiar estado directamente excepto cancelar.
+            // Cancelar cambia a Cancelada. Para completar no hay endpoint.
+            // Mejor: indicamos al usuario.
+            mostrarError('output-editar', 'La API no permite completar directamente. Use Cancelar (3)');
+        } else if (v === '3') {
+            $('editar-motivo-group').classList.remove('oculta');
+            $('editar-motivo').focus();
+        } else {
+            mostrarError('output-editar', 'Opcion no valida');
+        }
+    });
+
+    $('btn-editar-confirmar-cancel').addEventListener('click', async function() {
+        const motivo = $('editar-motivo').value.trim() || 'Cancelada por el usuario';
+        const id = editandoTarea.id || editandoTarea.tareaId;
+
+        try {
+            const data = await apiFetch('/tareas/' + id + '/cancelar', {
+                method: 'POST',
+                body: JSON.stringify(motivo)
+            });
+            if (!data) return;
+            mostrarOk('output-editar', 'Tarea cancelada correctamente');
+            setTimeout(() => abrirEditar(), 800);
+        } catch (err) {
+            mostrarError('output-editar', 'Error: ' + err.message);
+        }
+    });
+
+    $('btn-editar-back-menu').addEventListener('click', abrirMenu);
+
+    // ─── CANCELAR TAREA ───
+    let cancelandoIdx = -1;
+
+    function abrirCancelar() {
+        cancelandoIdx = -1;
+        mostrar('win-cancelar');
+        clearOutput('output-cancelar');
+        $('cancelar-motivo-group').classList.add('oculta');
+        $('cancelar-motivo').value = '';
+
+        apiFetch('/tareas?pagina=1&porPagina=100').then(data => {
+            const tareas = (data.datos || data.items || data || []).filter(t => t.estado !== 3);
+            tareasCache = tareas;
+
+            if (tareas.length === 0) {
+                outputLn('output-cancelar', 'No hay tareas para cancelar.');
+                return;
+            }
+
+            let html = '<div class="line line-title">=== CANCELAR TAREAS ===</div><div class="line"> </div>';
+            tareas.forEach((t, i) => {
+                html += formatearTarea(t, i + 1, false);
+            });
+            $('output-cancelar-lista').innerHTML = html;
+            $('input-cancelar-sel').focus();
+        }).catch(err => {
+            mostrarError('output-cancelar', 'Error: ' + err.message);
+        });
+    }
+
+    setupEnterInput('input-cancelar-sel', function(valor) {
+        const idx = parseInt(valor.trim());
+        const noCanceladas = tareasCache;
+        if (isNaN(idx) || idx < 1 || idx > noCanceladas.length) {
+            mostrarError('output-cancelar', 'Seleccion no valida');
+            return;
+        }
+        cancelandoIdx = idx - 1;
+        editandoTarea = noCanceladas[cancelandoIdx];
+        $('cancelar-motivo-group').classList.remove('oculta');
+        $('cancelar-motivo').focus();
+    });
+
+    $('btn-cancelar-confirmar').addEventListener('click', async function() {
+        const motivo = $('cancelar-motivo').value.trim() || 'Cancelada por el usuario';
+        const id = editandoTarea.id || editandoTarea.tareaId;
+
+        try {
+            const data = await apiFetch('/tareas/' + id + '/cancelar', {
+                method: 'POST',
+                body: JSON.stringify(motivo)
+            });
+            if (!data) return;
+            mostrarOk('output-cancelar', 'Tarea cancelada correctamente');
+            $('cancelar-motivo-group').classList.add('oculta');
+            setTimeout(() => abrirCancelar(), 800);
+        } catch (err) {
+            mostrarError('output-cancelar', 'Error: ' + err.message);
+        }
+    });
+
+    $('btn-cancelar-back').addEventListener('click', abrirMenu);
+
+    // ─── MIS ESTADISTICAS ───
+    async function mostrarMisStats() {
+        mostrar('win-stats');
+        clearOutput('output-stats');
+
+        try {
+            const data = await apiFetch('/tareas?pagina=1&porPagina=1000');
+            if (!data) return;
+            const misTareas = (data.datos || data.items || data || []).filter(t => t.usuarioId === currentUser.id);
+
+            const total = misTareas.length;
+            const pendientes = misTareas.filter(t => t.estado === 0).length;
+            const enProgreso = misTareas.filter(t => t.estado === 1).length;
+            const completadas = misTareas.filter(t => t.estado === 2).length;
+            const canceladas = misTareas.filter(t => t.estado === 3).length;
+            const vencidas = misTareas.filter(t => t.estaVencida).length;
+            const alta = misTareas.filter(t => t.prioridad === 2).length;
+            const media = misTareas.filter(t => t.prioridad === 1).length;
+            const baja = misTareas.filter(t => t.prioridad === 0).length;
+
+            outputLn('output-stats', '=== MIS ESTADISTICAS ===', 'line-title');
+            outputLn('output-stats', '');
+            outputLn('output-stats', `Total tareas: ${total}`);
+            outputLn('output-stats', `  |- Pendientes: ${pendientes}`);
+            outputLn('output-stats', `  |- En progreso: ${enProgreso}`);
+            outputLn('output-stats', `  |- Completadas: ${completadas}`);
+            outputLn('output-stats', `  '- Canceladas: ${canceladas}`);
+            outputLn('output-stats', '');
+            outputLn('output-stats', `Tareas vencidas: ${vencidas}`);
+            outputLn('output-stats', '');
+            outputLn('output-stats', '--- Por prioridad ---');
+            outputLn('output-stats', `Alta: ${alta}`);
+            outputLn('output-stats', `Media: ${media}`);
+            outputLn('output-stats', `Baja: ${baja}`);
+        } catch (err) {
+            mostrarError('output-stats', 'Error: ' + err.message);
+        }
+    }
+
+    $('btn-stats-back').addEventListener('click', abrirMenu);
+
+    // ─── ADMIN: VER TODAS ───
+    async function adminVerTodas() {
+        try {
+            const data = await apiFetch('/tareas?pagina=1&porPagina=1000');
+            if (!data) return;
+
+            const tareas = data.datos || data.items || data;
+            tareasCache = tareas;
+
+            mostrar('win-admin-todas');
+            $('admin-todas-counter').textContent = 'TOTAL: ' + tareas.length;
+            clearOutput('output-admin-todas');
+
+            if (tareas.length === 0) {
+                outputLn('output-admin-todas', 'No hay tareas en el sistema.');
+                return;
+            }
+
+            outputLn('output-admin-todas', '=== TODAS LAS TAREAS DEL SISTEMA ===', 'line-title');
+            outputLn('output-admin-todas', '');
+            tareas.forEach((t, i) => {
+                output('output-admin-todas', formatearTarea(t, i + 1, true));
+            });
+        } catch (err) {
+            mostrarError('output-admin-todas', 'Error: ' + err.message);
+        }
+    }
+
+    $('btn-admin-todas-back').addEventListener('click', abrirMenu);
+
+    // ─── ADMIN: GESTIONAR USUARIO ───
+    let adminGestionUsuarioSel = null;
+    let adminGestionAccion = 0;
+    let usuariosCache = [];
+
+    function adminGestionarUsuario() {
+        adminGestionUsuarioSel = null;
+        adminGestionAccion = 0;
+        usuariosCache = [];
+
+        mostrar('win-admin-gestion');
+        clearOutput('output-admin-gestion');
+        $('admin-gestion-paso1').classList.remove('oculta');
+        $('admin-gestion-paso2').classList.add('oculta');
+        $('admin-gestion-seltarea').classList.add('oculta');
+
+        apiFetch('/usuarios').then(usuarios => {
+            if (!usuarios) return;
+            usuariosCache = usuarios.filter(u => u.id !== currentUser.id);
+
+            if (usuariosCache.length === 0) {
+                outputLn('output-admin-gestion', 'No hay otros usuarios registrados.');
+                return;
+            }
+
+            let html = '<div class="line line-title">=== SELECCIONAR USUARIO ===</div><div class="line"> </div>';
+            usuariosCache.forEach((u, i) => {
+                html += `<div class="line">[${i + 1}] ${u.nombre.toUpperCase()} (${u.rol})</div>`;
+            });
+            html += '<div class="line"> </div><div class="line">0. VOLVER</div>';
+            $('output-admin-gestion-lista').innerHTML = html;
+            $('input-admin-gestion-sel').focus();
+        }).catch(err => {
+            mostrarError('output-admin-gestion', 'Error: ' + err.message);
+        });
+    }
+
+    setupEnterInput('input-admin-gestion-sel', function(valor) {
+        const v = valor.trim();
+        if (v === '0') { abrirMenu(); return; }
+        const idx = parseInt(v);
+        if (isNaN(idx) || idx < 1 || idx > usuariosCache.length) {
+            mostrarError('output-admin-gestion', 'Seleccion no valida');
+            return;
+        }
+
+        adminGestionUsuarioSel = usuariosCache[idx - 1];
+
+        apiFetch('/tareas?pagina=1&porPagina=1000').then(data => {
+            const todas = data.datos || data.items || data || [];
+            const susTareas = todas.filter(t => t.usuarioId === adminGestionUsuarioSel.id);
+            tareasCache = susTareas;
+
+            $('admin-gestion-paso1').classList.add('oculta');
+            $('admin-gestion-paso2').classList.remove('oculta');
+            $('admin-gestion-seltarea').classList.add('oculta');
+
+            let html = `<div class="line line-title">=== TAREAS DE ${adminGestionUsuarioSel.nombre.toUpperCase()} ===</div><div class="line"> </div>`;
+            if (susTareas.length === 0) {
+                html += '<div class="line">Este usuario no tiene tareas.</div>';
+            } else {
+                susTareas.forEach((t, i) => {
+                    html += formatearTarea(t, i + 1, false);
+                });
+            }
+            $('output-admin-gestion-tareas').innerHTML = html;
+            $('input-admin-gestion-accion').focus();
+        }).catch(err => {
+            mostrarError('output-admin-gestion', 'Error: ' + err.message);
+        });
+    });
+
+    setupEnterInput('input-admin-gestion-accion', function(valor) {
+        const v = valor.trim();
+        if (v === '0') { adminGestionarUsuario(); return; }
+
+        if (v !== '1' && v !== '2' && v !== '3') {
+            mostrarError('output-admin-gestion', 'Opcion no valida');
+            return;
+        }
+
+        adminGestionAccion = parseInt(v);
+
+        if (tareasCache.length === 0) {
+            mostrarError('output-admin-gestion', 'Este usuario no tiene tareas');
+            return;
+        }
+
+        $('admin-gestion-seltarea').classList.remove('oculta');
+
+        let html = '<div class="line line-title">SELECCIONE TAREA:</div><div class="line"> </div>';
+        tareasCache.forEach((t, i) => {
+            html += `<div class="line">[${i + 1}] ${t.titulo} (${estadoStr(t.estado)})</div>`;
+        });
+        html += '<div class="line"> </div>';
+        $('output-admin-gestion').innerHTML = html;
+        $('input-admin-gestion-tarea').focus();
+    });
+
+    setupEnterInput('input-admin-gestion-tarea', async function(valor) {
+        const idx = parseInt(valor.trim());
+        if (isNaN(idx) || idx < 1 || idx > tareasCache.length) {
+            mostrarError('output-admin-gestion', 'Seleccion no valida');
+            return;
+        }
+
+        const t = tareasCache[idx - 1];
+        const id = t.id || t.tareaId;
+        $('admin-gestion-seltarea').classList.add('oculta');
+
+        switch (adminGestionAccion) {
+            case 1: {
+                const nuevoTit = prompt('Nuevo titulo (Enter = sin cambios):', t.titulo);
+                const nuevaDesc = prompt('Nueva descripcion (Enter = sin cambios):', t.descripcion || '');
+                const nuevaPri = prompt('Nueva prioridad 1=Baja 2=Media 3=Alta (Enter = sin cambios):', (t.prioridad + 1).toString());
+
+                const body = {
+                    tipo: t.tipoTarea || 1,
+                    titulo: (nuevoTit && nuevoTit.trim()) ? nuevoTit.trim() : t.titulo,
+                    descripcion: nuevaDesc || t.descripcion || '',
+                    prioridad: (nuevaPri && parseInt(nuevaPri) >= 1 && parseInt(nuevaPri) <= 3) ? parseInt(nuevaPri) - 1 : t.prioridad,
+                    fechaLimite: t.fechaLimite
+                };
+
+                try {
+                    const data = await apiFetch('/tareas/' + id, { method: 'PUT', body: JSON.stringify(body) });
+                    if (!data) return;
+                    mostrarOk('output-admin-gestion', 'Tarea actualizada exitosamente');
+                    setTimeout(() => adminGestionarUsuario(), 1000);
+                } catch (err) {
+                    mostrarError('output-admin-gestion', 'Error: ' + err.message);
+                }
+                break;
+            }
+            case 2: {
+                const nuevoEstado = prompt('Nuevo estado: 1=Iniciar, 2=Completar, 3=Cancelar:', '2');
+                if (nuevoEstado === '3') {
+                    const motivo = prompt('Motivo de cancelacion:', '');
+                    try {
+                        const data = await apiFetch('/tareas/' + id + '/cancelar', {
+                            method: 'POST',
+                            body: JSON.stringify(motivo || 'Cancelado por admin')
+                        });
+                        if (!data) return;
+                        mostrarOk('output-admin-gestion', 'Estado actualizado');
+                    } catch (err) {
+                        mostrarError('output-admin-gestion', 'Error: ' + err.message);
+                    }
+                } else if (nuevoEstado === '2' || nuevoEstado === '1') {
+                    mostrarError('output-admin-gestion', 'La API solo permite cancelar. Use opcion 3.');
+                }
+                setTimeout(() => adminGestionarUsuario(), 1000);
+                break;
+            }
+            case 3: {
+                try {
+                    const data = await apiFetch('/tareas/' + id, { method: 'DELETE' });
+                    if (data === null) return;
+                    mostrarOk('output-admin-gestion', 'Tarea eliminada permanentemente');
+                    setTimeout(() => adminGestionarUsuario(), 1000);
+                } catch (err) {
+                    mostrarError('output-admin-gestion', 'Error: ' + err.message);
+                }
+                break;
+            }
+        }
+    });
+
+    $('btn-admin-gestion-back').addEventListener('click', abrirMenu);
+
+    // ─── ADMIN: STATS ───
+    async function adminStats() {
+        mostrar('win-admin-stats');
+        clearOutput('output-admin-stats');
+
+        try {
+            const data = await apiFetch('/tareas/estadisticas');
+            if (!data) return;
+
+            outputLn('output-admin-stats', '=== ESTADISTICAS GLOBALES (ADMIN) ===', 'line-title');
+            outputLn('output-admin-stats', '');
+            outputLn('output-admin-stats', `Total tareas en sistema: ${data.total}`);
+            outputLn('output-admin-stats', `  |- Pendientes: ${data.pendientes}`);
+            outputLn('output-admin-stats', `  |- En progreso: ${data.enProgreso}`);
+            outputLn('output-admin-stats', `  |- Completadas: ${data.completadas}`);
+            outputLn('output-admin-stats', `  '- Canceladas: ${data.canceladas}`);
+            outputLn('output-admin-stats', '');
+            outputLn('output-admin-stats', `Tareas vencidas: ${data.vencidas}`);
+            outputLn('output-admin-stats', `Tareas eliminadas: ${data.eliminadas}`);
+            outputLn('output-admin-stats', '');
+            outputLn('output-admin-stats', '--- Por tipo ---');
+            outputLn('output-admin-stats', `Simples: ${data.simples}`);
+            outputLn('output-admin-stats', `Recurrentes: ${data.recurrentes}`);
+            outputLn('output-admin-stats', `Urgentes: ${data.urgentes}`);
+        } catch (err) {
+            mostrarError('output-admin-stats', 'Error: ' + err.message);
+        }
+    }
+
+    $('btn-admin-stats-back').addEventListener('click', abrirMenu);
+
+    // ─── LOGOUT ───
+    function logout() {
+        currentUser = null;
+        tareasCache = [];
+        mostrarInicio();
+    }
+
+    // ─── SETUP ENTER INPUTS ───
+    function setupEnterInput(inputId, callback) {
+        const el = $(inputId);
+        if (!el) return;
+        el.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                callback(this.value);
+                this.value = '';
+            }
+        });
+    }
+
+    // ─── INICIO ───
+    function mostrarInicio() {
+        mostrar('win-inicio');
+        clearOutput('output-inicio');
+        $('input-inicio').focus();
+    }
+
+    setupEnterInput('input-inicio', function(valor) {
+        switch(valor.trim()) {
+            case '1': abrirLogin(); break;
+            case '2': abrirRegister(); break;
+            case '0': outputLn('output-inicio', '¡Hasta luego!'); break;
+            default: mostrarError('output-inicio', 'Opcion no valida');
+        }
+    });
+
+    mostrarInicio();
+
+})();
+</script>
+
+</body>
+</html>

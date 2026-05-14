@@ -20,7 +20,7 @@ namespace GestorTareas.Infrastructure.Middleware
             {
                 await _next(context);
 
-                // Manejar 404 cuando la ruta existe pero devuelve 404 (no encontrado)
+                // 404
                 if (context.Response.StatusCode == (int)HttpStatusCode.NotFound)
                 {
                     await EscribirProblemDetails(context, StatusCodes.Status404NotFound,

@@ -72,7 +72,12 @@ builder.Services.AddScoped<ITareaRepository, EfTareaRepository>();
 builder.Services.AddScoped<TareaService>();
 builder.Services.AddScoped<AuthService>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.MaxDepth = 64;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -85,6 +90,21 @@ using (var scope = app.Services.CreateScope())
     SeedUsuarios(dbContext);
 }
 
+// Servir archivos estáticos desde GestorTareas.Frontend/ (2 niveles arriba desde bin/Debug/net10.0)
+var baseDir = AppContext.BaseDirectory; // ej: ...\GestorTareas\bin\Debug\net10.0\
+var projectDir = Directory.GetParent(baseDir)?.Parent?.Parent?.Parent?.FullName; // ...\GestorTareas\
+var rootDir = Directory.GetParent(projectDir)?.FullName ?? Directory.GetCurrentDirectory(); // ...\GestorTareas (raíz del repo)
+var frontendPath = Path.Combine(rootDir, "GestorTareas.Frontend");
+app.UseDefaultFiles(new DefaultFilesOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(frontendPath),
+    DefaultFileNames = new[] { "index.html" }
+});
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(frontendPath)
+});
+
 app.UseErrorHandling();
 
 if (app.Environment.IsDevelopment())
@@ -93,7 +113,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// No redirigir a HTTPS en desarrollo para evitar problemas con fetch desde http
+if (!app.Environment.IsDevelopment())
+    app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
@@ -101,7 +123,6 @@ app.Run();
 
 static void SeedUsuarios(AppDbContext dbContext)
 {
-    // Migrar passwords en texto plano a BCrypt (para BD existentes)
     var usuariosSinHash = dbContext.Usuarios
         .Where(u => u.Password != null && !u.Password.StartsWith("$2"))
         .ToList();
@@ -114,7 +135,6 @@ static void SeedUsuarios(AppDbContext dbContext)
     if (usuariosSinHash.Count > 0)
         dbContext.SaveChanges();
 
-    // Seed inicial si no hay usuarios
     if (!dbContext.Usuarios.Any())
     {
         var adminId = Guid.Parse("11111111-1111-1111-1111-111111111111");
