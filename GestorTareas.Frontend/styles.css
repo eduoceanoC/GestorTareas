@@ -285,6 +285,53 @@ body {
     background: #141420 !important;
 }
 
+/* ─── Navbar Bootstrap (estilo terminal) ─── */
+.terminal-navbar {
+    width: 100%;
+    background: #0e0e0e !important;
+    border: 1px solid #2a2a3e;
+    border-bottom: 1px solid #3a3a3a;
+    margin-bottom: 12px;
+    padding: 0 8px;
+}
+.terminal-brand {
+    color: #70c0d0 !important;
+    font-weight: bold;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    font-family: 'Courier New', 'Consolas', monospace;
+}
+.terminal-nav-link {
+    color: #909090 !important;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    font-family: 'Courier New', 'Consolas', monospace;
+    padding: 6px 10px !important;
+    border: 1px solid transparent;
+    transition: all 0.1s ease;
+}
+.terminal-nav-link:hover {
+    color: #b0e0ff !important;
+    background: #1a1a2e !important;
+    border-color: #2a3a5e;
+}
+.terminal-nav-logout {
+    color: #d06060 !important;
+}
+.terminal-nav-logout:hover {
+    color: #ff7070 !important;
+    border-color: #5a2a2a !important;
+}
+.navbar-toggler {
+    border-color: #3a3a3a !important;
+}
+.navbar-toggler-icon {
+    filter: invert(0.6);
+}
+.admin-only-nav {
+    display: none;
+}
+
 /* ─── Responsive ─── */
 @media (max-width: 640px) {
     body { padding: 8px; }
