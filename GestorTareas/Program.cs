@@ -8,13 +8,14 @@ using GestorTareas.UI;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using MySql.EntityFrameworkCore.Extensions;
 
 if (args.Contains("console"))
 {
     Console.Title = "Gestor de Tareas (Modo consola)";
 
     string consoleConnectionString =
-        "Server=(localdb)\\MSSQLLocalDB;Database=GestorTareas;Trusted_Connection=True;TrustServerCertificate=True;";
+        "Server=localhost;Port=3306;Database=GestorTareas;User=root;Password=;";
 
     var config = new ConfigurationBuilder()
         .SetBasePath(AppContext.BaseDirectory)
@@ -22,7 +23,7 @@ if (args.Contains("console"))
         .Build();
 
     var options = new DbContextOptionsBuilder<AppDbContext>()
-        .UseSqlServer(consoleConnectionString)
+        .UseMySQL(consoleConnectionString)
         .Options;
 
     var context = new AppDbContext(options);
@@ -45,7 +46,7 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseMySQL(connectionString));
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 
